@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Juego de puzzles para ninos de 5 a 7 anos: encajar, parejas, memoria y ordenar. Funciona sin conexion.",
+  "description": "Juego de puzzles para ninos de 5 a 7 anos: encajar, emparejar y ordenar. Funciona sin conexion.",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",

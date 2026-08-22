@@ -1,12 +1,20 @@
+import { Navigate, Route, Routes } from 'react-router-dom'
+import Inicio from './vistas/Inicio'
+import Partida from './vistas/Partida'
+import Temas from './vistas/Temas'
+
 /**
- * Esqueleto. Las pantallas y las mecánicas salen de la entrevista de
- * `grill-with-docs`, no de este archivo.
+ * Tres pasos: elegir mecánica, elegir tema, jugar. El nivel no aparece en la
+ * URL porque el niño no lo elige: siempre se juega el más alto desbloqueado.
  */
 export default function App() {
   return (
-    <main className="flex h-full flex-col items-center justify-center gap-4 bg-purple-50 p-8">
-      <h1 className="text-4xl font-bold text-purple-700">JuegaFormas</h1>
-      <p className="text-lg text-purple-500">Sin empezar todavía.</p>
-    </main>
+    <Routes>
+      <Route path="/" element={<Inicio />} />
+      <Route path="/:mecanica" element={<Temas />} />
+      <Route path="/:mecanica/:tema" element={<Partida />} />
+      {/* Una URL rota devuelve al inicio, nunca a una pantalla de error. */}
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   )
 }
