@@ -1,0 +1,18 @@
+@import 'tailwindcss';
+
+/* Es un juego táctil para niños: el arrastre no debe hacer scroll ni seleccionar
+   texto, y el doble toque no debe hacer zoom. */
+html,
+body,
+#root {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  margin: 0;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
