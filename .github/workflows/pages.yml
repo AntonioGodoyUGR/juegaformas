@@ -1,0 +1,50 @@
+# Publica el juego en GitHub Pages en cada empujón a master.
+#
+# La build no necesita saber dónde va a vivir: `vite.config.ts` usa `base: './'`
+# y el enrutador es `HashRouter`, así que el mismo `dist` sirve para la raíz de
+# un dominio, para un subdirectorio de Pages y para el `file://` de Capacitor.
+name: Publicar
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Si se empuja dos veces seguidas, publica lo último y no dos a la vez.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Lo mismo que se pasa en local antes de commitear. Publicar sin esto es
+      # enterarse de que algo se ha roto por la pantalla de un niño.
+      - run: npm run typecheck
+      - run: npx vitest run
+      - run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publicar:
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4
