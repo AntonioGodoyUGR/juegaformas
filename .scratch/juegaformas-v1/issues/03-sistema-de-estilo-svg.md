@@ -54,3 +54,29 @@ bilingües y pertenecen al fichero de textos, no al dibujo.
 
 Ningún asset exige atribución: todo es SVG original. Kenney (CC0) queda sólo
 para los sonidos del ticket 11.
+
+---
+
+**Pasada de volumen, posterior al cierre.** Los dibujos planos se leían bien pero
+parecían pegatinas. El sistema de estilo crece con dos añadidos y ninguna
+excepción:
+
+- Dos grosores en vez de uno: `GROSOR` 8 para la silueta y `DETALLE` 5 para lo
+  de dentro (costuras, radios, vetas, párpados). El de dentro no puede pesar lo
+  mismo que el borde o la pieza se convierte en una maraña.
+- Un mapa `SOMBRA` con **exactamente un** tono por color de la paleta. La luz
+  viene siempre de arriba a la izquierda, así que la sombra cae abajo a la
+  derecha. Sin degradados ni desenfoques: siguen siendo rellenos planos.
+
+Las manchas de volumen van con `stroke="none"`: el contorno ya lo pone la
+silueta que tienen debajo. El truco recurrente es pintar la sombra entera y
+encima la forma clara desplazada arriba-izquierda; en siluetas con esquinas
+redondeadas (carrocerías, vagones) la sombra va como banda inferior que reutiliza
+los centros de arco del `rect` padre, para apoyarse en el borde sin cruzarlo.
+
+Verificado otra vez a ojo a 300px, 120px y 96px con la misma hoja de contactos,
+generada desde los componentes reales con `renderToStaticMarkup`. A 300px se
+busca que ningún relleno claro asome fuera del contorno; a 96px, que las tiras
+de brillo de las ventanillas y los bujes de las ruedas sigan leyéndose. La
+bicicleta es la única pieza sin sombra: no tiene masa grande donde caiga, y lo
+que le da volumen son los radios.
