@@ -88,4 +88,6 @@ export const en: Textos = {
     encajada: 'Piece fitted.',
     devuelta: 'The piece goes back.',
   },
+
+  cartaTapada: 'Card to turn over',
 }

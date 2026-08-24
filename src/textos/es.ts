@@ -85,4 +85,6 @@ export const es: Textos = {
     encajada: 'Pieza encajada.',
     devuelta: 'La pieza vuelve a su sitio.',
   },
+
+  cartaTapada: 'Carta por descubrir',
 }

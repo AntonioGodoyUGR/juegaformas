@@ -13,6 +13,7 @@ test.each(CATALOGOS)('%s nombra las tres mecánicas y los siete temas', (_idioma
   for (const mecanica of MECANICAS) expect(textos.mecanicas[mecanica]).toBeTruthy()
   for (const tema of TEMAS) expect(textos.temas[tema]).toBeTruthy()
   expect(textos.volver).toBeTruthy()
+  expect(textos.cartaTapada).toBeTruthy()
 })
 
 test.each(CATALOGOS)('%s dice en su idioma lo que pasa al arrastrar', (_idioma, textos) => {

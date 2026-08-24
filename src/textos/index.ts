@@ -26,6 +26,12 @@ export type Textos = {
    * empieza a hablar en inglés en cuanto se coge una pieza.
    */
   readonly arrastre: Arrastre
+  /**
+   * Cómo se llama una carta que todavía está boca abajo. Es el único texto propio
+   * de la mecánica `emparejar`: el nombre de la pieza ya está en `piezas`, y
+   * ponerlo aquí sería contarle el juego a quien no mira la pantalla.
+   */
+  readonly cartaTapada: string
 }
 
 /** Los anuncios del arrastre. Frases sueltas, sin nombre de pieza dentro: el

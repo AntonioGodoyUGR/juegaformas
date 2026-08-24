@@ -3,8 +3,10 @@ import { Navigate, useParams } from 'react-router-dom'
 import { Volver } from '../componentes/Volver'
 import { useJuego, useTextos } from '../estado/juego'
 import { type Mecanica, type Tema, esMecanica, esTema } from '../lib/dominio'
+import { juegaBocaAbajo } from '../lib/emparejar'
 import { type Partida as Tablero, generarPartida } from '../lib/partida'
 import { anotarPartida } from '../lib/progreso'
+import { Emparejar } from '../mecanicas/Emparejar'
 import { Encajar } from '../mecanicas/Encajar'
 import { rutas } from '../rutas'
 
@@ -50,10 +52,14 @@ const PAUSA = 900
  */
 function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
   const { guardado, actualizar } = useJuego()
-  const [ronda, setRonda] = useState(0)
-  const [partida, setPartida] = useState<Tablero>(() =>
-    generarPartida(mecanica, tema, guardado.completadas[mecanica]),
-  )
+
+  // Cuántas partidas lleva hechas de esta mecánica. Se lee del progreso al
+  // entrar y a partir de ahí lo lleva la pantalla, porque es el número del que
+  // cuelga todo lo demás: el nivel, cuántas piezas trae el tablero y si
+  // `emparejar` reparte boca abajo. Con una sola cuenta no hay forma de que una
+  // de esas tres decisiones se quede una partida por detrás de las otras.
+  const [completadas, setCompletadas] = useState(guardado.completadas[mecanica])
+  const [partida, setPartida] = useState<Tablero>(() => generarPartida(mecanica, tema, completadas))
   const espera = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // Si el niño sale a mitad de la pausa, el temporizador no debe repartir un
@@ -64,20 +70,27 @@ function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
     actualizar((estado) => anotarPartida(estado, mecanica))
 
     espera.current = setTimeout(() => {
-      // El `+ 1` es la partida que se acaba de terminar: `guardado` es el de
-      // este render y todavía no la lleva contada. Importa porque de ahí sale
-      // el nivel, y con él cuántas piezas trae el tablero siguiente.
-      setPartida(generarPartida(mecanica, tema, guardado.completadas[mecanica] + 1))
-      setRonda((n) => n + 1)
+      const siguiente = completadas + 1
+      setCompletadas(siguiente)
+      setPartida(generarPartida(mecanica, tema, siguiente))
     }, PAUSA)
   }
 
+  // La `key` es la partida contada: al cambiar, la mecánica se monta de cero y
+  // no queda nada del tablero anterior.
   return (
     <div className="min-h-0 grow">
-      {/* Las otras dos mecánicas llegan en los tickets 07 y 08. Hasta entonces
-          sus temas se abren y se ven, pero no reparten tablero. */}
+      {/* Ordenar llega en el ticket 08. Hasta entonces sus temas se abren y se
+          ven, pero no reparten tablero. */}
       {mecanica === 'encajar' ? (
-        <Encajar key={ronda} partida={partida} alTerminar={alTerminar} />
+        <Encajar key={completadas} partida={partida} alTerminar={alTerminar} />
+      ) : mecanica === 'emparejar' ? (
+        <Emparejar
+          key={completadas}
+          partida={partida}
+          bocaAbajo={juegaBocaAbajo(completadas)}
+          alTerminar={alTerminar}
+        />
       ) : null}
     </div>
   )
