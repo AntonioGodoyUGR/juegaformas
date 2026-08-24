@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # PWA generado
 dev-dist
+
+# Notas de trabajo: las issues y specs de los agentes no viajan al repo
+.scratch
