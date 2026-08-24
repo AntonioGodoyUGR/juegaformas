@@ -18,11 +18,17 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg'],
+      // Sin `includeAssets`: los iconos y el favicon ya entran por
+      // `globPatterns`, y ponerlos también ahí los mete dos veces en la lista
+      // del precache. Workbox los deduplica sin quejarse, así que el único
+      // aviso de que sobraban es `herramientas/comprobar-offline.mjs`.
       workbox: {
         // El juego tiene que arrancar entero en una tablet en modo avión, así que
         // el precache incluye ilustraciones y sonidos, no solo el bundle.
         globPatterns: ['**/*.{js,css,html,svg,png,webp,woff2,mp3,ogg}'],
+        // Los iconos ya entran en el precache por el manifest, que es quien
+        // dice cuáles son. Cogerlos también por el patrón los pone dos veces.
+        globIgnores: ['icon-*.svg'],
         // Los assets de un juego infantil pesan; el tope por defecto (2 MiB) se queda corto.
         maximumFileSizeToCacheInBytes: 8 * 1024 * 1024,
       },
