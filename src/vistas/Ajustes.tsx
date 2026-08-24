@@ -16,9 +16,11 @@ import { NOMBRES_DE_IDIOMA } from '../textos'
  * jugar y una pregunta —«¿quién eres?»— que a los cinco años se contesta
  * tocando el primer botón.
  *
- * Tampoco hay nada de lo que suele haber aquí: ni dificultad, ni tiempo de
- * pantalla, ni estadísticas. El nivel se sube jugando y no se elige, y cuánto
- * ha jugado un niño lo sabe quien está con él.
+ * Tampoco hay nada de lo que suele haber aquí: ni tiempo de pantalla ni
+ * estadísticas —cuánto ha jugado un niño lo sabe quien está con él—. La
+ * dificultad tampoco está aquí, aunque se elija: es de cada mecánica, y se
+ * cambia en la pantalla de temas de esa mecánica, con su nombre delante y sin
+ * salir de donde se está jugando.
  */
 export default function Ajustes() {
   const textos = useTextos()

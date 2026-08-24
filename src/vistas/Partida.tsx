@@ -3,7 +3,7 @@ import { Navigate, useParams } from 'react-router-dom'
 import { CelebracionBreve, CelebracionDeNivel } from '../componentes/Celebracion'
 import { Volver } from '../componentes/Volver'
 import { useJuego, useTextos } from '../estado/juego'
-import { type Mecanica, type Tema, esMecanica, esTema } from '../lib/dominio'
+import { type Dificultad, type Mecanica, type Tema, esMecanica, esTema } from '../lib/dominio'
 import { juegaBocaAbajo } from '../lib/emparejar'
 import { completaNivel } from '../lib/niveles'
 import { criterioDe } from '../lib/ordenar'
@@ -21,8 +21,11 @@ import { rutas } from '../rutas'
 export default function Partida() {
   const { mecanica, tema } = useParams()
   const textos = useTextos()
+  const { guardado } = useJuego()
 
   if (!esMecanica(mecanica) || !esTema(tema)) return <Navigate to={rutas.inicio} replace />
+
+  const dificultad = guardado.dificultad[mecanica]
 
   return (
     <main className="flex h-full flex-col bg-purple-50">
@@ -35,8 +38,18 @@ export default function Partida() {
 
       {/* La `key` es lo que hace que cambiar de tema sin salir de la pantalla
           empiece un tablero limpio: el enrutador reutiliza el componente
-          cuando solo cambian los parámetros de la URL. */}
-      <Ronda key={`${mecanica}/${tema}`} mecanica={mecanica} tema={tema} />
+          cuando solo cambian los parámetros de la URL.
+
+          La dificultad va dentro de la `key` por lo mismo: si un adulto la
+          cambia mientras el niño juega —se puede, volviendo atrás—, lo que
+          tiene que pasar es que se reparta un tablero del tamaño nuevo, no que
+          el de en medio se quede a medias. */}
+      <Ronda
+        key={`${mecanica}/${tema}/${dificultad}`}
+        mecanica={mecanica}
+        tema={tema}
+        dificultad={dificultad}
+      />
     </main>
   )
 }
@@ -65,17 +78,26 @@ type Celebrando = 'ninguna' | 'partida' | 'nivel'
  * no tiene pantalla de fin: al terminar un tablero se reparte otro, que es lo
  * que hace un niño que quiere seguir.
  */
-function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
+function Ronda({
+  mecanica,
+  tema,
+  dificultad,
+}: {
+  mecanica: Mecanica
+  tema: Tema
+  dificultad: Dificultad
+}) {
   const { guardado, actualizar } = useJuego()
 
   // Cuántas partidas lleva hechas de esta mecánica. Se lee del progreso al
   // entrar y a partir de ahí lo lleva la pantalla, porque es el número del que
-  // cuelga todo lo demás: el nivel, cuántas piezas trae el tablero, si
-  // `emparejar` reparte boca abajo y con qué criterio ordena `ordenar`. Con una
-  // sola cuenta no hay forma de que una de esas decisiones se quede una partida
-  // por detrás de las otras.
+  // cuelga el ritmo: cuándo toca celebración de nivel, si `emparejar` reparte
+  // boca abajo y con qué criterio ordena `ordenar`. Con una sola cuenta no hay
+  // forma de que una de esas decisiones se quede una partida por detrás de las
+  // otras. Cuántas piezas trae el tablero ya no cuelga de aquí: eso lo dice la
+  // dificultad elegida, y no cambia mientras se juega.
   const [completadas, setCompletadas] = useState(guardado.completadas[mecanica])
-  const [partida, setPartida] = useState<Tablero>(() => generarPartida(mecanica, tema, completadas))
+  const [partida, setPartida] = useState<Tablero>(() => generarPartida(mecanica, tema, dificultad))
   const [celebrando, setCelebrando] = useState<Celebrando>('ninguna')
   const espera = useRef<ReturnType<typeof setTimeout>>(undefined)
 
@@ -103,7 +125,7 @@ function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
     const hechas = completadas + 1
     setCelebrando('ninguna')
     setCompletadas(hechas)
-    setPartida(generarPartida(mecanica, tema, hechas))
+    setPartida(generarPartida(mecanica, tema, dificultad))
   }
 
   // La celebración de nivel es una pantalla propia: mientras está, no hay

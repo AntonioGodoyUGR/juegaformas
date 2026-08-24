@@ -25,6 +25,15 @@ export const es: Textos = {
     vehiculos: 'Vehículos',
   },
 
+  dificultad: {
+    titulo: 'Dificultad',
+    nombres: {
+      facil: 'Fácil',
+      media: 'Normal',
+      dificil: 'Difícil',
+    },
+  },
+
   piezas: {
     'espacio/cohete': 'Cohete',
     'espacio/planeta': 'Planeta',

@@ -15,7 +15,7 @@ import {
 import { NIVELES } from './niveles'
 import { generarPartida } from './partida'
 
-const partida = () => generarPartida('emparejar', 'espacio', 0, () => 0)
+const partida = () => generarPartida('emparejar', 'espacio', 'facil', () => 0)
 const tableroDe = (bocaAbajo = false) => crearTablero(partida(), bocaAbajo, () => 0)
 
 /** Las dos cartas de una pieza del tablero, en el orden en que salieron. */

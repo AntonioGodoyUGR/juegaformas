@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { TEMAS } from './dominio'
-import { NIVELES } from './niveles'
+import { DIFICULTADES, MECANICAS, TEMAS } from './dominio'
+import { PIEZAS_MAXIMAS, piezasDeNivel } from './niveles'
 import { barajar, generarPartida } from './partida'
 
 /** Azar previsible: siempre devuelve el primer elemento del rango. */
@@ -16,27 +16,44 @@ describe('barajar', () => {
 })
 
 describe('generar partida', () => {
-  test('trae las piezas que pide el nivel, sin repetir', () => {
-    const partida = generarPartida('encajar', 'espacio', 0)
-    expect(partida.piezas).toHaveLength(NIVELES.encajar[0].piezas)
-    expect(new Set(partida.piezas.map((pieza) => pieza.id)).size).toBe(partida.piezas.length)
+  test('trae las piezas que pide la dificultad, sin repetir', () => {
+    for (const mecanica of MECANICAS) {
+      for (const dificultad of DIFICULTADES) {
+        const partida = generarPartida(mecanica, 'espacio', dificultad)
+        expect(partida.piezas).toHaveLength(piezasDeNivel(mecanica, dificultad))
+        expect(new Set(partida.piezas.map((pieza) => pieza.id)).size).toBe(partida.piezas.length)
+      }
+    }
+  })
+
+  test('subir la dificultad nunca quita piezas', () => {
+    for (const mecanica of MECANICAS) {
+      const cuantas = DIFICULTADES.map(
+        (dificultad) => generarPartida(mecanica, 'mar', dificultad).piezas.length,
+      )
+      expect(cuantas).toEqual([...cuantas].sort((uno, otro) => uno - otro))
+      expect(new Set(cuantas).size).toBe(DIFICULTADES.length)
+    }
   })
 
   test('todas las piezas salen del tema elegido', () => {
     for (const tema of TEMAS) {
-      const partida = generarPartida('emparejar', tema, 0)
+      const partida = generarPartida('emparejar', tema, 'dificil')
       expect(partida.piezas.every((pieza) => pieza.tema === tema)).toBe(true)
     }
   })
 
   test('con el mismo azar sale el mismo tablero', () => {
-    const uno = generarPartida('ordenar', 'mar', 0, sinAzar)
-    const otro = generarPartida('ordenar', 'mar', 0, sinAzar)
+    const uno = generarPartida('ordenar', 'mar', 'media', sinAzar)
+    const otro = generarPartida('ordenar', 'mar', 'media', sinAzar)
     expect(uno.piezas.map((pieza) => pieza.id)).toEqual(otro.piezas.map((pieza) => pieza.id))
   })
 
-  test('un progreso corrupto sigue dando un tablero jugable', () => {
-    const partida = generarPartida('encajar', 'comida', Number.NaN)
-    expect(partida.piezas.length).toBeGreaterThan(0)
+  test('ningún tablero pide más piezas de las que tiene un tema', () => {
+    for (const mecanica of MECANICAS) {
+      for (const dificultad of DIFICULTADES) {
+        expect(piezasDeNivel(mecanica, dificultad)).toBeLessThanOrEqual(PIEZAS_MAXIMAS)
+      }
+    }
   })
 })

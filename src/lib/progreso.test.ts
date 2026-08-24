@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, test } from 'vitest'
+import { DIFICULTAD_INICIAL } from './dominio'
 import {
   CLAVE,
   anotarPartida,
+  elegirDificultad,
   elegirIdioma,
   guardar,
   leer,
@@ -46,6 +48,23 @@ describe('leer', () => {
   test('un idioma que no existe cae al castellano', () => {
     localStorage.setItem(CLAVE, JSON.stringify({ idioma: 'klingon' }))
     expect(leer().idioma).toBe('es')
+  })
+
+  test('la dificultad elegida sobrevive a cerrar el juego', () => {
+    guardar(elegirDificultad(porDefecto(), 'ordenar', 'dificil'))
+    expect(leer().dificultad.ordenar).toBe('dificil')
+  })
+
+  test('una dificultad que no existe solo afecta a su mecánica', () => {
+    localStorage.setItem(
+      CLAVE,
+      JSON.stringify({ dificultad: { encajar: 'imposible', emparejar: 'dificil' } }),
+    )
+    expect(leer().dificultad).toEqual({
+      encajar: DIFICULTAD_INICIAL,
+      emparejar: 'dificil',
+      ordenar: DIFICULTAD_INICIAL,
+    })
   })
 
   test('un volumen fuera de rango cae al de por defecto', () => {
@@ -93,6 +112,36 @@ describe('reiniciar', () => {
     guardar(anotarPartida(porDefecto(), 'ordenar'))
     expect(reiniciar()).toEqual(porDefecto())
     expect(leer()).toEqual(porDefecto())
+  })
+})
+
+describe('elegir dificultad', () => {
+  test('un juego recién instalado empieza por lo más fácil en las tres', () => {
+    expect(porDefecto().dificultad).toEqual({
+      encajar: DIFICULTAD_INICIAL,
+      emparejar: DIFICULTAD_INICIAL,
+      ordenar: DIFICULTAD_INICIAL,
+    })
+  })
+
+  test('cambiarla en una mecánica no toca las otras dos', () => {
+    const despues = elegirDificultad(porDefecto(), 'emparejar', 'dificil')
+    expect(despues.dificultad).toEqual({
+      encajar: DIFICULTAD_INICIAL,
+      emparejar: 'dificil',
+      ordenar: DIFICULTAD_INICIAL,
+    })
+  })
+
+  test('no muta el estado anterior', () => {
+    const antes = porDefecto()
+    elegirDificultad(antes, 'encajar', 'dificil')
+    expect(antes.dificultad.encajar).toBe(DIFICULTAD_INICIAL)
+  })
+
+  test('reiniciar la devuelve a la de fábrica', () => {
+    guardar(elegirDificultad(porDefecto(), 'encajar', 'dificil'))
+    expect(reiniciar().dificultad.encajar).toBe(DIFICULTAD_INICIAL)
   })
 })
 

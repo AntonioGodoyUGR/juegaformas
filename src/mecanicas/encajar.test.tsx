@@ -38,7 +38,7 @@ function montar(alTerminar = () => {}) {
   })
 
   // `() => 0` fija el sorteo: siempre las mismas tres piezas, en el mismo orden.
-  const partida = generarPartida('encajar', 'espacio', 0, () => 0)
+  const partida = generarPartida('encajar', 'espacio', 'facil', () => 0)
 
   render(
     <ProveedorDeJuego preferencias={['es']}>

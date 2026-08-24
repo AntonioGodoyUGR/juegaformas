@@ -15,4 +15,8 @@ tenemos —elegir el mundo que te gusta— en la primera frustración de la sesi
 ## Consecuencia
 
 Los assets no necesitan atributos de dificultad: basta `tema` + `nombre`. La
-única palanca de progresión es el número de piezas.
+única palanca que cambia lo que cuesta un tablero es el número de piezas.
+
+Revisado por [0002](0002-la-dificultad-se-elige.md): ese número ya no se
+desbloquea jugando, lo elige un adulto. Lo que esta decisión sostiene —que el
+contenido no lleva candado— sigue en pie.

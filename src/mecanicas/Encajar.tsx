@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
 import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
@@ -17,6 +18,11 @@ import { SENAL } from './senal'
  * El tablero no se reinicia solo cuando cambia la partida: quien lo monta le
  * pone una `key`, que es lo que garantiza que no queden piezas encajadas de la
  * partida anterior.
+ *
+ * Cuántas piezas trae lo decide la dificultad, así que el tamaño de la ficha no
+ * puede ser una clase fija: seis fichas de 9rem con sus separaciones piden más
+ * de mil píxeles y una tablet apaisada no los tiene. Lo que hay es una medida
+ * calculada —`--ficha`— que reparte el ancho que hay entre las que toquen.
  */
 export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar: () => void }) {
   const textos = useTextos()
@@ -27,6 +33,8 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
 
   const sensores = useSensoresDeArrastre()
   const accesibilidad = useAnunciosDeArrastre(textos.arrastre.instrucciones)
+
+  const escala = escalaDeFicha(partida.piezas.length)
 
   function alSoltar(pieza: string, hueco: string | null) {
     setArrastrada(null)
@@ -58,7 +66,7 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
       onDragEnd={({ active, over }) => alSoltar(String(active.id), over ? String(over.id) : null)}
       onDragCancel={() => setArrastrada(null)}
     >
-      <div className="flex h-full flex-col justify-center gap-8 p-4">
+      <div className="flex h-full flex-col justify-center gap-8 p-4" style={escala}>
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
           {tablero.huecos.map((pieza) => (
             <Hueco
@@ -90,10 +98,41 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
           bandeja y para que, al fallar, vuelva sola a su sitio con la animación
           que trae `@dnd-kit`: en silencio y sin decirle al niño que ha fallado. */}
       <DragOverlay>
-        {arrastrada ? <Pieza id={arrastrada} className="size-28 sm:size-36" decorativa /> : null}
+        {arrastrada ? (
+          // El `DragOverlay` es hermano del tablero, no hijo: la medida hay que
+          // dársela otra vez o la pieza en vuelo saldría de otro tamaño que la
+          // que el niño acaba de levantar.
+          <div className="size-[var(--ficha)]" style={escala}>
+            <Pieza id={arrastrada} className="size-full" decorativa />
+          </div>
+        ) : null}
       </DragOverlay>
     </DndContext>
   )
+}
+
+/** Lo que separa dos fichas en pantalla grande, en píxeles. Es el `gap-8` de las filas. */
+const SEPARACION = 32
+
+/**
+ * Cuánto mide una ficha cuando el tablero trae `cuantas`.
+ *
+ * Tres topes, y manda el más pequeño. El primero es el tamaño de siempre: con
+ * tres o cuatro piezas no cambia nada de lo que ya había. El segundo es el
+ * ancho que queda al repartir la pantalla entre las fichas y sus separaciones,
+ * que es el que aprieta con seis. El tercero es la altura, porque las fichas van
+ * en dos filas —huecos y bandeja— y una tablet apaisada es más baja que ancha.
+ *
+ * Y un suelo por debajo de todo: antes que una ficha más pequeña que la yema de
+ * un dedo, que la fila se parta en dos. Por eso las filas siguen con
+ * `flex-wrap`.
+ */
+function escalaDeFicha(cuantas: number): CSSProperties {
+  const reparto = `(94vw - ${(cuantas - 1) * SEPARACION}px) / ${cuantas}`
+
+  return {
+    '--ficha': `max(4.5rem, min(9rem, ${reparto}, 30vh))`,
+  } as CSSProperties
 }
 
 /**
@@ -119,7 +158,7 @@ function Hueco({ id, lleno, senal }: { id: string; lleno: boolean; senal?: strin
       // nada que decir.
       role={senal ? 'note' : undefined}
       aria-label={senal}
-      className={`flex size-28 items-center justify-center rounded-3xl transition-colors sm:size-36 ${
+      className={`flex size-[var(--ficha)] items-center justify-center rounded-3xl transition-colors ${
         lleno ? 'bg-transparent' : isOver ? 'bg-purple-200' : 'bg-purple-100'
       } ${senal ? SENAL : ''}`}
     >
@@ -153,7 +192,7 @@ function Silueta({ id }: { id: string }) {
 function Ficha({ id, nombre, puesta }: { id: string; nombre: string; puesta: boolean }) {
   const { setNodeRef, attributes, listeners, isDragging } = useDraggable({ id, disabled: puesta })
 
-  if (puesta) return <div className="size-28 sm:size-36" aria-hidden="true" />
+  if (puesta) return <div className="size-[var(--ficha)]" aria-hidden="true" />
 
   return (
     <button
@@ -163,7 +202,7 @@ function Ficha({ id, nombre, puesta }: { id: string; nombre: string; puesta: boo
       aria-label={nombre}
       // `touch-none` es obligatorio para arrastrar con el dedo: sin él, el
       // navegador se queda el gesto para hacer scroll y la pieza no se mueve.
-      className={`size-28 touch-none sm:size-36 ${isDragging ? 'opacity-30' : ''}`}
+      className={`size-[var(--ficha)] touch-none ${isDragging ? 'opacity-30' : ''}`}
       {...listeners}
       {...attributes}
     >

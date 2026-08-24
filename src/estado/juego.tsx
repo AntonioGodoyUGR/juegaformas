@@ -1,6 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { guardar, elegirIdioma, leer, porDefecto, reiniciar as limpiar } from '../lib/progreso'
+import type { Dificultad, Mecanica } from '../lib/dominio'
+import {
+  elegirDificultad as ponerDificultad,
+  guardar,
+  elegirIdioma,
+  leer,
+  porDefecto,
+  reiniciar as limpiar,
+} from '../lib/progreso'
 import type { Guardado, Idioma } from '../lib/progreso'
 import { textosDe } from '../textos'
 import type { Textos } from '../textos'
@@ -14,6 +22,8 @@ type Juego = {
   readonly guardado: Guardado
   readonly textos: Textos
   cambiarIdioma: (idioma: Idioma) => void
+  /** Cambiar cuántas piezas trae el tablero de una mecánica. Lo elige un adulto. */
+  elegirDificultad: (mecanica: Mecanica, dificultad: Dificultad) => void
   actualizar: (cambio: (estado: Guardado) => Guardado) => void
   /** Borrarlo todo. Lo pide un adulto desde ajustes, y no se puede deshacer. */
   reiniciar: () => void
@@ -29,6 +39,7 @@ const SIN_PROVEEDOR: Juego = {
   guardado: porDefecto(),
   textos: textosDe('es'),
   cambiarIdioma: () => {},
+  elegirDificultad: () => {},
   actualizar: () => {},
   reiniciar: () => {},
 }
@@ -72,6 +83,14 @@ export function ProveedorDeJuego({
     setGuardado((estado) => (estado.idioma === idioma ? estado : { ...estado, idioma }))
   }, [])
 
+  const elegirDificultad = useCallback((mecanica: Mecanica, dificultad: Dificultad) => {
+    setGuardado((estado) =>
+      estado.dificultad[mecanica] === dificultad
+        ? estado
+        : ponerDificultad(estado, mecanica, dificultad),
+    )
+  }, [])
+
   // Se borra el almacenamiento y además se pone el estado limpio en memoria: el
   // efecto de arriba lo volverá a escribir enseguida, y eso es justo lo que se
   // quiere —lo que queda guardado es un juego recién instalado, no un hueco—.
@@ -80,8 +99,15 @@ export function ProveedorDeJuego({
   }, [almacen, delAparato])
 
   const valor = useMemo<Juego>(
-    () => ({ guardado, textos: textosDe(guardado.idioma), cambiarIdioma, actualizar, reiniciar }),
-    [guardado, cambiarIdioma, actualizar, reiniciar],
+    () => ({
+      guardado,
+      textos: textosDe(guardado.idioma),
+      cambiarIdioma,
+      elegirDificultad,
+      actualizar,
+      reiniciar,
+    }),
+    [guardado, cambiarIdioma, elegirDificultad, actualizar, reiniciar],
   )
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>

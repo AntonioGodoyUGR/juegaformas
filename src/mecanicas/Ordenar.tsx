@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { CSSProperties } from 'react'
 import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
 import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
@@ -52,6 +53,7 @@ export function Ordenar({
 
   const total = tablero.eslabones.length
   const nombreDePieza = textos.piezas[tablero.pieza]
+  const escala = escalaDeEscalera(total)
 
   /** Cómo se llama un eslabón para quien no ve la pantalla. */
   function nombrar(grado: number) {
@@ -102,8 +104,8 @@ export function Ordenar({
     >
       {/* Los tamaños de esta mecánica van en `em` y no en clases fijas porque
           son una escala, no tres medidas sueltas: con el `em` atado aquí, toda
-          la escalera crece de golpe en pantalla grande y sigue proporcionada. */}
-      <div className="flex h-full flex-col justify-center gap-8 p-4 text-base sm:text-[1.35rem]">
+          la escalera crece o se encoge de golpe y sigue proporcionada. */}
+      <div className="flex h-full flex-col justify-center gap-8 p-4" style={escala}>
         {/* Una secuencia es una lista ordenada, y decirlo con `ol` es lo que
             hace que un lector de pantalla la recorra como lo que es. */}
         <ol className="flex list-none flex-wrap items-end justify-center gap-3 sm:gap-5">
@@ -140,9 +142,13 @@ export function Ordenar({
           que trae `@dnd-kit`: en silencio. */}
       <DragOverlay>
         {arrastrado === null ? null : (
+          // El `DragOverlay` es hermano de la escalera, no hijo: sin volver a
+          // darle el `em` de aquí, el eslabón cambiaría de tamaño al levantarlo.
           <div
-            className="text-base sm:text-[1.35rem]"
-            style={cuadrado(ladoDeFicha(tablero.criterio, arrastrado, total))}
+            style={{
+              ...escala,
+              ...cuadrado(ladoDeFicha(tablero.criterio, arrastrado, total)),
+            }}
           >
             <Dibujo criterio={tablero.criterio} pieza={tablero.pieza} grado={arrastrado} />
           </div>
@@ -166,6 +172,36 @@ const PASO = 2
 const ladoDe = (grado: number) => MENOR + (grado - 1) * PASO
 
 const cuadrado = (lado: number) => ({ width: `${lado}em`, height: `${lado}em` })
+
+/** Lo que separa dos eslabones en pantalla grande, en píxeles. Es el `gap-5` de las filas. */
+const SEPARACION = 20
+
+/**
+ * De cuánto es el `em` del que cuelga toda la escalera cuando la secuencia tiene
+ * `total` peldaños.
+ *
+ * Esta mecánica es la que peor lleva crecer, y por eso su dificultad se queda en
+ * cinco: la escalera no suma peldaños iguales, los suma cada vez más grandes. La
+ * bandeja de `cantidad` —donde todos los eslabones ocupan lo que el mayor— pide
+ * `total × ladoDe(total)` de ancho, que con cinco son cincuenta y siete veces el
+ * `em` y con seis serían ochenta y dos.
+ *
+ * Así que el `em` se calcula en vez de fijarse: se parte del de siempre y se
+ * baja hasta lo que quepa a lo ancho y a lo alto. Con tres o cuatro peldaños no
+ * cambia nada; con cinco, la escalera entera se encoge de una pieza, que es
+ * justo lo que no se puede hacer con clases fijas.
+ */
+function escalaDeEscalera(total: number): CSSProperties {
+  // Lo ancho lo pone la bandeja de `cantidad`, que es la fila más larga de las
+  // dos que hay; lo alto, las dos filas de eslabones del tamaño del mayor.
+  const anchoEm = total * ladoDe(total)
+  const altoEm = 2 * ladoDe(total)
+
+  const cabeAncho = `(94vw - ${(total - 1) * SEPARACION}px) / ${anchoEm}`
+  const cabeAlto = `(78vh - 64px) / ${altoEm}`
+
+  return { fontSize: `min(1.35rem, ${cabeAncho}, ${cabeAlto})` }
+}
 
 /**
  * Cuánto ocupa un eslabón en la bandeja.

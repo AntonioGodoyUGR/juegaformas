@@ -1,16 +1,12 @@
 import { describe, expect, test } from 'vitest'
 import { TEMAS } from './dominio'
-import { NIVELES } from './niveles'
+import { PIEZAS_MAXIMAS } from './niveles'
 import { muestraDe, piezasDe, todasLasPiezas } from './piezas'
-
-const PIEZAS_DEL_TABLERO_MAS_GRANDE = Math.max(
-  ...Object.values(NIVELES).flatMap((niveles) => niveles.map((nivel) => nivel.piezas)),
-)
 
 describe('catálogo', () => {
   test('ningún tema se queda corto para el tablero más grande', () => {
     for (const tema of TEMAS) {
-      expect(piezasDe(tema).length).toBeGreaterThanOrEqual(PIEZAS_DEL_TABLERO_MAS_GRANDE)
+      expect(piezasDe(tema).length).toBeGreaterThanOrEqual(PIEZAS_MAXIMAS)
     }
   })
 

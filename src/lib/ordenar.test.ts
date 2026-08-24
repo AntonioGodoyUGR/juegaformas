@@ -13,7 +13,7 @@ import {
   soltar,
 } from './ordenar'
 
-const partida = () => generarPartida('ordenar', 'espacio', 0, () => 0)
+const partida = () => generarPartida('ordenar', 'espacio', 'facil', () => 0)
 const tableroDe = (criterio: Criterio = 'tamano') => crearTablero(partida(), criterio)
 
 describe('la secuencia', () => {

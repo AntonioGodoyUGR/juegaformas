@@ -48,7 +48,7 @@ function montar(criterio: Criterio, alTerminar = () => {}) {
   // `() => 0` fija el sorteo de la partida: siempre la misma pieza. El orden de
   // la bandeja lo baraja la mecánica por su cuenta y da igual cuál salga: los
   // eslabones se buscan por su grado, no por dónde estén.
-  const partida = generarPartida('ordenar', 'espacio', 0, () => 0)
+  const partida = generarPartida('ordenar', 'espacio', 'facil', () => 0)
 
   render(
     <ProveedorDeJuego preferencias={['es']}>

@@ -36,9 +36,17 @@ vidas ni tiempo, solo tableros terminados.
 _Avoid_: ronda, sesión, intento, pantalla, juego
 
 **Nivel**:
-Un bloque de 15 a 20 partidas jugadas con un número de piezas fijo. Cada mecánica
-tiene tres niveles, y es lo único que se desbloquea jugando.
+Un bloque de 15 a 20 partidas seguidas que termina en celebración grande. Marca
+el ritmo del premio, no el tamaño del tablero, y se sube jugando: no se elige ni
+se enseña en pantalla.
 _Avoid_: fase, mundo, dificultad, etapa
+
+**Dificultad**:
+Cuántas piezas distintas trae el tablero: `facil`, `media` o `dificil`. Es de
+cada mecánica —encajar seis y emparejar cuatro es una combinación normal—, la
+elige un adulto en la cabecera de la pantalla de temas y se recuerda. Es lo
+único que se elige en todo el juego.
+_Avoid_: nivel, modo, edad
 
 **Celebración**:
 El premio visual al terminar. Hay dos: una breve al completar una partida, y una
@@ -58,7 +66,7 @@ _Avoid_: ficha, carta, tile, item
 
 **Tema**:
 El mundo del que salen las piezas de una partida. Es piel: no lleva dificultad
-encima y todos están disponibles desde el principio, en cualquier nivel.
+encima y todos están disponibles desde el principio, en cualquier dificultad.
 _Avoid_: mundo, colección, set, categoría
 
 Los siete temas, con fronteras que no se solapan:

@@ -11,9 +11,10 @@ import { rutas } from '../rutas'
  * cosas pondría un paso entre abrir el juego y jugar, y son dos toques en
  * total.
  *
- * Tampoco se enseña el progreso. El nivel se sube jugando y no se elige nunca,
- * así que enseñar cuánto falta solo sirve para que el niño se compare consigo
- * mismo.
+ * Tampoco se enseña el progreso: enseñar cuánto falta solo sirve para que el
+ * niño se compare consigo mismo. Lo único que se elige —cuántas piezas trae el
+ * tablero— se elige dentro de cada mecánica, en su pantalla de temas, porque es
+ * de cada mecánica y no del juego entero.
  */
 export default function Inicio() {
   const textos = useTextos()

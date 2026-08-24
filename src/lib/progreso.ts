@@ -1,4 +1,10 @@
-import { MECANICAS, type Mecanica } from './dominio'
+import {
+  DIFICULTAD_INICIAL,
+  MECANICAS,
+  type Dificultad,
+  type Mecanica,
+  esDificultad,
+} from './dominio'
 
 export const IDIOMAS = ['es', 'en'] as const
 export type Idioma = (typeof IDIOMAS)[number]
@@ -9,11 +15,19 @@ export type Idioma = (typeof IDIOMAS)[number]
  * de casa.
  *
  * No se guarda el nivel: se deriva de `completadas` (ver `niveles.ts`), así que
- * no puede quedar descuadrado.
+ * no puede quedar descuadrado. La dificultad sí, porque no se deriva de nada:
+ * la elige un adulto y tiene que seguir puesta la próxima vez que se abre el
+ * juego.
  */
 export type Guardado = {
   readonly version: 1
   readonly completadas: Readonly<Record<Mecanica, number>>
+  /**
+   * Una por mecánica, y no una sola para todo el juego: un niño puede encajar
+   * seis piezas de sobra y atascarse emparejando cuatro, y bajarle entonces las
+   * tres mecánicas de golpe le quita lo que ya hacía bien.
+   */
+  readonly dificultad: Readonly<Record<Mecanica, Dificultad>>
   readonly idioma: Idioma
   /** De 0 a 1. A 0 el juego es plenamente jugable. */
   readonly volumen: number
@@ -42,6 +56,11 @@ export function porDefecto(idioma: Idioma = 'es'): Guardado {
   return {
     version: 1,
     completadas: { encajar: 0, emparejar: 0, ordenar: 0 },
+    dificultad: {
+      encajar: DIFICULTAD_INICIAL,
+      emparejar: DIFICULTAD_INICIAL,
+      ordenar: DIFICULTAD_INICIAL,
+    },
     idioma,
     volumen: 0.6,
   }
@@ -86,12 +105,22 @@ export function leer(
 
   const parcial = datos as Record<string, unknown>
   const completadas = (parcial.completadas ?? {}) as Record<string, unknown>
+  const dificultad = (parcial.dificultad ?? {}) as Record<string, unknown>
 
   return {
     version: 1,
     completadas: Object.fromEntries(
       MECANICAS.map((mecanica) => [mecanica, contador(completadas[mecanica])]),
     ) as Record<Mecanica, number>,
+    // Una dificultad que no existe —de una versión futura, o de un guardado
+    // toqueteado a mano— vuelve a la de fábrica en esa mecánica sola: las otras
+    // dos no tienen la culpa.
+    dificultad: Object.fromEntries(
+      MECANICAS.map((mecanica) => [
+        mecanica,
+        esDificultad(dificultad[mecanica]) ? dificultad[mecanica] : base.dificultad[mecanica],
+      ]),
+    ) as Record<Mecanica, Dificultad>,
     idioma: (IDIOMAS as readonly unknown[]).includes(parcial.idioma)
       ? (parcial.idioma as Idioma)
       : base.idioma,
@@ -126,6 +155,18 @@ export function reiniciar(
     // Da igual: lo que se devuelve ya es el estado limpio.
   }
   return porDefecto(idioma)
+}
+
+/** Cambia la dificultad de una mecánica. Devuelve un estado nuevo; no muta el anterior. */
+export function elegirDificultad(
+  estado: Guardado,
+  mecanica: Mecanica,
+  dificultad: Dificultad,
+): Guardado {
+  return {
+    ...estado,
+    dificultad: { ...estado.dificultad, [mecanica]: dificultad },
+  }
 }
 
 /** Suma una partida completada. Devuelve un estado nuevo; no muta el anterior. */

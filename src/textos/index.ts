@@ -1,4 +1,4 @@
-import { type Mecanica, type Tema } from '../lib/dominio'
+import { type Dificultad, type Mecanica, type Tema } from '../lib/dominio'
 import { type Idioma } from '../lib/progreso'
 import { en } from './en'
 import { es } from './es'
@@ -14,6 +14,12 @@ export type Textos = {
   readonly volver: string
   readonly mecanicas: Readonly<Record<Mecanica, string>>
   readonly temas: Readonly<Record<Tema, string>>
+  /**
+   * Lo único que un adulto elige dentro del juego, y por eso está escrito para
+   * él: un niño de cinco años no lee «Difícil», mira los tres puntos que hay
+   * debajo y toca el que quiere.
+   */
+  readonly dificultad: Dificultades
   /**
    * Por identificador de pieza, `tema/nombre`. Es el nombre accesible del
    * dibujo: sin él, cuarenta y dos ilustraciones son cuarenta y dos silencios
@@ -59,6 +65,16 @@ export type Textos = {
    * el idioma de la tablet de su hijo o de borrarle lo jugado.
    */
   readonly ajustes: Ajustes
+}
+
+/**
+ * Los nombres de las tres dificultades, más el de la fila entera. El título no
+ * se pinta en pantalla —la fila se explica sola con los puntos— pero sí lo
+ * anuncia el lector: sin él son tres botones sueltos sin decir de qué van.
+ */
+export type Dificultades = {
+  readonly titulo: string
+  readonly nombres: Readonly<Record<Dificultad, string>>
 }
 
 /** Los anuncios del arrastre. Frases sueltas, sin nombre de pieza dentro: el

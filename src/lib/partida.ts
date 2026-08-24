@@ -1,5 +1,5 @@
-import { type Mecanica, type Pieza, type Tema } from './dominio'
-import { situacion } from './niveles'
+import { type Dificultad, type Mecanica, type Pieza, type Tema } from './dominio'
+import { piezasDeNivel } from './niveles'
 import { piezasDe } from './piezas'
 
 /** Un tablero listo para jugar. */
@@ -23,23 +23,22 @@ export function barajar<T>(items: readonly T[], azar: Azar = Math.random): T[] {
 }
 
 /**
- * Genera el tablero que le toca al niño: el número de piezas lo pone el nivel
- * más alto desbloqueado de esa mecánica, y las piezas salen del tema elegido
- * sin repetirse dentro del tablero.
+ * Genera el tablero que le toca al niño: el número de piezas lo pone la
+ * dificultad elegida para esa mecánica, y las piezas salen del tema elegido sin
+ * repetirse dentro del tablero.
  *
- * Si el tema tuviera menos piezas de las que pide el nivel, se juega con las que
- * hay. Un tablero pequeño es un fallo de contenido molesto; un tablero con la
- * misma pieza dos veces rompe `encajar` y `emparejar`.
+ * Si el tema tuviera menos piezas de las que pide la dificultad, se juega con
+ * las que hay. Un tablero pequeño es un fallo de contenido molesto; un tablero
+ * con la misma pieza dos veces rompe `encajar` y `emparejar`.
  */
 export function generarPartida(
   mecanica: Mecanica,
   tema: Tema,
-  completadas: number,
+  dificultad: Dificultad,
   azar: Azar = Math.random,
 ): Partida {
-  const { nivel } = situacion(mecanica, completadas)
   const disponibles = piezasDe(tema)
-  const cuantas = Math.min(nivel.piezas, disponibles.length)
+  const cuantas = Math.min(piezasDeNivel(mecanica, dificultad), disponibles.length)
 
   return {
     mecanica,

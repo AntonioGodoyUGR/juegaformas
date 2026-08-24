@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
 import {
@@ -27,6 +28,13 @@ import { SENAL } from './senal'
  *
  * Como en `encajar`, el tablero no se reinicia solo cuando cambia la partida:
  * quien lo monta le pone una `key`.
+ *
+ * La rejilla es siempre de dos filas, tantas columnas como parejas. No es un
+ * ajuste automático a propósito: con seis parejas y las cartas colocándose
+ * solas saldrían cuatro y cuatro y cuatro, y un tablero de memoria en el que
+ * las filas cambian de longitud según cuántas piezas toquen es un tablero que
+ * hay que volver a mirar entero cada partida. Dos filas siempre, y las cartas
+ * se estrechan lo que haga falta para caber.
  */
 export function Emparejar({
   partida,
@@ -73,9 +81,14 @@ export function Emparejar({
   // mecánica va apareciendo con el juego en vez de quedarse fija en pantalla.
   const senalada = hayPista(pista) ? parejaPendiente(tablero) : null
 
+  const parejas = partida.piezas.length
+
   return (
     <div className="flex h-full items-center justify-center p-4">
-      <div className="flex max-w-2xl flex-wrap items-center justify-center gap-4 sm:gap-6">
+      <div
+        className="grid grid-cols-[repeat(var(--columnas),var(--carta))] justify-center gap-4 sm:gap-6"
+        style={escalaDeCarta(parejas)}
+      >
         {tablero.cartas.map((carta) => (
           <Carta
             key={carta.id}
@@ -100,6 +113,26 @@ export function Emparejar({
  * abajo, y no tanto como para que el niño se canse esperando.
  */
 const PAUSA_FALLO = 1200
+
+/** Lo que separa dos cartas en pantalla grande, en píxeles. Es el `gap-6` de la rejilla. */
+const SEPARACION = 24
+
+/**
+ * Cuánto mide una carta y cuántas columnas hay, cuando el tablero trae
+ * `parejas` piezas distintas.
+ *
+ * Los topes son los de `encajar` y por lo mismo: el tamaño de siempre mientras
+ * quepa, el ancho repartido entre las columnas cuando no, y la altura, que aquí
+ * aprieta antes porque las dos filas están siempre llenas.
+ */
+function escalaDeCarta(parejas: number): CSSProperties {
+  const reparto = `(94vw - ${(parejas - 1) * SEPARACION}px) / ${parejas}`
+
+  return {
+    '--columnas': parejas,
+    '--carta': `min(9rem, ${reparto}, 38vh)`,
+  } as CSSProperties
+}
 
 /**
  * Una carta. La misma en los dos modos: lo único que cambia es si enseña el
@@ -143,7 +176,7 @@ function Carta({
       // nombre sería el juego resuelto para quien no mira la pantalla.
       aria-label={senalada ? pareja(etiqueta) : etiqueta}
       onClick={() => alTocar(carta.id)}
-      className={`flex size-28 items-center justify-center rounded-3xl transition-colors sm:size-36 ${
+      className={`flex size-[var(--carta)] items-center justify-center rounded-3xl transition-colors ${
         hecha ? 'bg-purple-100' : visible ? 'bg-white' : 'bg-purple-400'
       } ${senalada ? SENAL : ''}`}
     >

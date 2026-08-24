@@ -27,7 +27,7 @@ function montar(bocaAbajo: boolean, alTerminar = () => {}) {
   vi.useFakeTimers()
 
   // `() => 0` fija el sorteo: siempre las mismas tres piezas, en el mismo orden.
-  const partida = generarPartida('emparejar', 'espacio', 0, () => 0)
+  const partida = generarPartida('emparejar', 'espacio', 'facil', () => 0)
 
   render(
     <ProveedorDeJuego preferencias={['es']}>

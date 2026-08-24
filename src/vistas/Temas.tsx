@@ -1,4 +1,5 @@
 import { Link, Navigate, useParams } from 'react-router-dom'
+import { SelectorDeDificultad } from '../componentes/Dificultad'
 import { Volver } from '../componentes/Volver'
 import { useTextos } from '../estado/juego'
 import { TEMAS, esMecanica } from '../lib/dominio'
@@ -8,8 +9,11 @@ import { rutas } from '../rutas'
 
 /**
  * Segundo toque: el tema. Los siete están siempre, todos iguales y ninguno con
- * candado: el tema es piel, no dificultad, y lo que se desbloquea jugando es el
- * nivel, que no se elige ni se enseña.
+ * candado: el tema es piel, no dificultad.
+ *
+ * La dificultad —lo único que sí cambia lo que cuesta el tablero— vive en la
+ * cabecera, fuera del camino del dedo: el niño toca su tema y juega, y el
+ * adulto que ve que se le queda corto o largo lo cambia sin salir de aquí.
  *
  * Cada tema se anuncia con una pieza suya, que es lo que mira quien no lee. El
  * nombre va debajo para el adulto y para el lector de pantalla; el dibujo va
@@ -31,6 +35,10 @@ export default function Temas() {
         <h1 className="text-2xl font-bold text-purple-700 sm:text-3xl">
           {textos.mecanicas[mecanica]}
         </h1>
+
+        <div className="ml-auto">
+          <SelectorDeDificultad mecanica={mecanica} />
+        </div>
       </header>
 
       {/* El ancho está topado para que quepan exactamente cuatro por fila: siete

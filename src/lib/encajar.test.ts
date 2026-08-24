@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest'
 import { crearTablero, estaTerminado, soltar } from './encajar'
 import { generarPartida } from './partida'
 
-const partida = () => generarPartida('encajar', 'espacio', 0, () => 0)
+const partida = () => generarPartida('encajar', 'espacio', 'facil', () => 0)
 
 describe('tablero', () => {
   test('reparte la misma partida en huecos y fichas', () => {
