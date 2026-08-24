@@ -75,4 +75,14 @@ export const es: Textos = {
     'vehiculos/camion': 'Camión',
     'vehiculos/bicicleta': 'Bicicleta',
   },
+
+  arrastre: {
+    instrucciones:
+      'Arrastra cada pieza hasta su hueco. Con teclado: espacio para cogerla, flechas para moverla y espacio otra vez para soltarla.',
+    cogida: 'Pieza cogida.',
+    sobreHueco: 'Sobre un hueco.',
+    fueraDeHueco: 'Fuera de los huecos.',
+    encajada: 'Pieza encajada.',
+    devuelta: 'La pieza vuelve a su sitio.',
+  },
 }

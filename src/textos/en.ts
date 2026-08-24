@@ -78,4 +78,14 @@ export const en: Textos = {
     'vehiculos/camion': 'Truck',
     'vehiculos/bicicleta': 'Bike',
   },
+
+  arrastre: {
+    instrucciones:
+      'Drag each piece to its hole. With a keyboard: space to pick it up, arrow keys to move it and space again to drop it.',
+    cogida: 'Piece picked up.',
+    sobreHueco: 'Over a hole.',
+    fueraDeHueco: 'Away from the holes.',
+    encajada: 'Piece fitted.',
+    devuelta: 'The piece goes back.',
+  },
 }

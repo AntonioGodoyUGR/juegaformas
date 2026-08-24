@@ -15,6 +15,14 @@ test.each(CATALOGOS)('%s nombra las tres mecánicas y los siete temas', (_idioma
   expect(textos.volver).toBeTruthy()
 })
 
+test.each(CATALOGOS)('%s dice en su idioma lo que pasa al arrastrar', (_idioma, textos) => {
+  // Es lo único que un lector de pantalla lee mientras se juega. Si falta una
+  // frase, `@dnd-kit` pone la suya en inglés y nadie lo ve mirando la pantalla.
+  for (const [clave, frase] of Object.entries(textos.arrastre)) {
+    expect(frase, `falta ${clave}`).toBeTruthy()
+  }
+})
+
 test.each(CATALOGOS)('%s nombra las cuarenta y dos piezas', (_idioma, textos) => {
   for (const pieza of todasLasPiezas()) {
     expect(textos.piezas[pieza.id], `falta el nombre de ${pieza.id}`).toBeTruthy()

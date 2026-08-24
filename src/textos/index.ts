@@ -20,6 +20,23 @@ export type Textos = {
    * para un lector de pantalla. Un test comprueba que no falta ninguna.
    */
   readonly piezas: Readonly<Record<string, string>>
+  /**
+   * Lo que oye quien juega con lector de pantalla mientras arrastra. `@dnd-kit`
+   * trae sus propios anuncios, pero en inglés: sin esto, un juego en castellano
+   * empieza a hablar en inglés en cuanto se coge una pieza.
+   */
+  readonly arrastre: Arrastre
+}
+
+/** Los anuncios del arrastre. Frases sueltas, sin nombre de pieza dentro: el
+ * lector acaba de leer la ficha que se ha cogido y repetirlo solo alarga. */
+export type Arrastre = {
+  readonly instrucciones: string
+  readonly cogida: string
+  readonly sobreHueco: string
+  readonly fueraDeHueco: string
+  readonly encajada: string
+  readonly devuelta: string
 }
 
 /**

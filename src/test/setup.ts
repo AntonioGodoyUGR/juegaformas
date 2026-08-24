@@ -16,6 +16,15 @@ window.matchMedia ??= ((query: string) => ({
 
 window.scrollTo = () => {}
 
+// `@dnd-kit` observa el tamaño de huecos y fichas para saber dónde están, y
+// jsdom no trae `ResizeObserver`. Aquí no hay que observar nada: jsdom tampoco
+// maqueta, así que los tests que necesitan medidas se las ponen a mano.
+globalThis.ResizeObserver ??= class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
 beforeEach(() => {
   // El progreso del niño vive en localStorage; cada test arranca en limpio.
   localStorage.clear()
