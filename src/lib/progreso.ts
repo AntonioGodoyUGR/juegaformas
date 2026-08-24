@@ -21,11 +21,28 @@ export type Guardado = {
 
 export const CLAVE = 'juegaformas'
 
-export function porDefecto(): Guardado {
+/**
+ * El idioma de arranque a partir de lo que pide el dispositivo. Se compara solo
+ * la raíz de la etiqueta: `es-419` y `es-ES` son castellano, y a un niño le da
+ * igual la variante.
+ *
+ * Si el dispositivo no habla ninguno de los dos, castellano. No es un empate
+ * técnico: el juego se escribe primero en castellano y es el idioma que siempre
+ * está completo.
+ */
+export function elegirIdioma(preferencias: readonly string[] = []): Idioma {
+  for (const etiqueta of preferencias) {
+    const raiz = etiqueta.toLowerCase().split('-')[0]
+    if ((IDIOMAS as readonly string[]).includes(raiz)) return raiz as Idioma
+  }
+  return 'es'
+}
+
+export function porDefecto(idioma: Idioma = 'es'): Guardado {
   return {
     version: 1,
     completadas: { encajar: 0, emparejar: 0, ordenar: 0 },
-    idioma: 'es',
+    idioma,
     volumen: 0.6,
   }
 }
@@ -39,9 +56,16 @@ function contador(valor: unknown): number {
  * arreglar un `localStorage` corrupto, y un adulto tampoco va a saber que ese
  * es el problema: cualquier cosa rara se sustituye por su valor por defecto y
  * el juego arranca igual.
+ *
+ * `idiomaInicial` solo manda cuando no hay nada guardado o lo guardado no sirve:
+ * en cuanto un adulto elige idioma, esa elección gana sobre el dispositivo para
+ * siempre.
  */
-export function leer(almacen: Pick<Storage, 'getItem'> = localStorage): Guardado {
-  const base = porDefecto()
+export function leer(
+  almacen: Pick<Storage, 'getItem'> = localStorage,
+  idiomaInicial: Idioma = 'es',
+): Guardado {
+  const base = porDefecto(idiomaInicial)
 
   let crudo: string | null = null
   try {

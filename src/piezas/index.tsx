@@ -1,4 +1,5 @@
 import type { ComponentType } from 'react'
+import { useTextos } from '../estado/juego'
 import { GROSOR, LIENZO, TRAZO } from './estilo'
 import * as animales from './dibujos/animales'
 import * as comida from './dibujos/comida'
@@ -68,22 +69,40 @@ export function hayDibujo(id: string): boolean {
 }
 
 /**
- * Pinta una pieza. El trazo y el lienzo viven aquí y no en cada dibujo: es la
- * única forma de que cuarenta y dos ilustraciones mantengan el mismo grosor.
+ * Pinta una pieza del catálogo.
  *
- * Sin nombre accesible de momento. Las piezas se nombran en dos idiomas, así
- * que las etiquetas llegan con el ticket 04.
+ * El nombre accesible sale del catálogo de textos y cambia con el idioma. Sin
+ * él, un dibujo sin palabra al lado no se puede nombrar en voz alta, y aquí la
+ * pieza *es* el contenido: no hay ningún otro sitio donde ponga «cohete».
+ *
+ * `decorativa` es para cuando la misma pieza aparece dos veces en pantalla —el
+ * hueco y la ficha que encaja en él—: repetir el nombre no informa, estorba.
+ *
+ * El trazo y el lienzo viven aquí y no en cada dibujo: es la única forma de que
+ * cuarenta y dos ilustraciones mantengan el mismo grosor.
  */
-export function Pieza({ id, className }: { id: string; className?: string }) {
+export function Pieza({
+  id,
+  className,
+  decorativa = false,
+}: {
+  id: string
+  className?: string
+  decorativa?: boolean
+}) {
+  const textos = useTextos()
   const Dibujo = DIBUJOS[id]
   if (!Dibujo) return null
+
+  const nombre = decorativa ? undefined : textos.piezas[id]
 
   return (
     <svg
       viewBox={`0 0 ${LIENZO} ${LIENZO}`}
       className={className}
       role="img"
-      aria-hidden="true"
+      aria-hidden={nombre === undefined || undefined}
+      aria-label={nombre}
       focusable="false"
     >
       <g

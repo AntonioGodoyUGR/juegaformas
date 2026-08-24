@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, test } from 'vitest'
-import { CLAVE, anotarPartida, guardar, leer, porDefecto, reiniciar } from './progreso'
+import {
+  CLAVE,
+  anotarPartida,
+  elegirIdioma,
+  guardar,
+  leer,
+  porDefecto,
+  reiniciar,
+} from './progreso'
 
 beforeEach(() => localStorage.clear())
 
@@ -85,5 +93,28 @@ describe('reiniciar', () => {
     guardar(anotarPartida(porDefecto(), 'ordenar'))
     expect(reiniciar()).toEqual(porDefecto())
     expect(leer()).toEqual(porDefecto())
+  })
+})
+
+describe('elegir idioma', () => {
+  test('la variante del dispositivo da igual', () => {
+    expect(elegirIdioma(['es-419'])).toBe('es')
+    expect(elegirIdioma(['EN-gb'])).toBe('en')
+  })
+
+  test('gana el primero de la lista que hablamos', () => {
+    expect(elegirIdioma(['fr-FR', 'de', 'en-US', 'es-ES'])).toBe('en')
+  })
+
+  test('un dispositivo que no habla ninguno de los dos juega en castellano', () => {
+    expect(elegirIdioma(['fr-FR', 'de'])).toBe('es')
+    expect(elegirIdioma([])).toBe('es')
+    expect(elegirIdioma()).toBe('es')
+  })
+
+  test('el idioma inicial solo se usa cuando no hay nada guardado', () => {
+    expect(leer(localStorage, 'en').idioma).toBe('en')
+    guardar({ ...porDefecto(), idioma: 'es' })
+    expect(leer(localStorage, 'en').idioma).toBe('es')
   })
 })
