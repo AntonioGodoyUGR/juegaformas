@@ -40,6 +40,15 @@ export function piezasDe(tema: Tema): readonly Pieza[] {
   return POR_TEMA[tema]
 }
 
+/**
+ * La pieza con la que se anuncia un tema en la pantalla de elección. Es siempre
+ * la misma, a propósito: un niño que no lee elige por el dibujo, y un tema que
+ * cambia de cara en cada visita deja de ser reconocible.
+ */
+export function muestraDe(tema: Tema): Pieza {
+  return POR_TEMA[tema][0]
+}
+
 export function todasLasPiezas(): readonly Pieza[] {
   return Object.values(POR_TEMA).flat()
 }

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { TEMAS } from './dominio'
 import { NIVELES } from './niveles'
-import { piezasDe, todasLasPiezas } from './piezas'
+import { muestraDe, piezasDe, todasLasPiezas } from './piezas'
 
 const PIEZAS_DEL_TABLERO_MAS_GRANDE = Math.max(
   ...Object.values(NIVELES).flatMap((niveles) => niveles.map((nivel) => nivel.piezas)),
@@ -25,6 +25,23 @@ describe('catálogo', () => {
         expect(pieza.tema).toBe(tema)
         expect(pieza.id.startsWith(`${tema}/`)).toBe(true)
       }
+    }
+  })
+})
+
+describe('muestra de tema', () => {
+  test('cada tema tiene una pieza con la que anunciarse', () => {
+    for (const tema of TEMAS) {
+      expect(muestraDe(tema).tema).toBe(tema)
+    }
+  })
+
+  test('la muestra no cambia entre visitas', () => {
+    // Un niño que no lee elige el tema por el dibujo. Si el dibujo cambia, el
+    // tema deja de ser reconocible.
+    for (const tema of TEMAS) {
+      expect(muestraDe(tema).id).toBe(muestraDe(tema).id)
+      expect(muestraDe(tema)).toBe(piezasDe(tema)[0])
     }
   })
 })

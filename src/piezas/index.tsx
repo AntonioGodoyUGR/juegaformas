@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import { useTextos } from '../estado/juego'
-import { GROSOR, LIENZO, TRAZO } from './estilo'
+import { Lienzo } from './lienzo'
 import * as animales from './dibujos/animales'
 import * as comida from './dibujos/comida'
 import * as deportes from './dibujos/deportes'
@@ -77,9 +77,6 @@ export function hayDibujo(id: string): boolean {
  *
  * `decorativa` es para cuando la misma pieza aparece dos veces en pantalla —el
  * hueco y la ficha que encaja en él—: repetir el nombre no informa, estorba.
- *
- * El trazo y el lienzo viven aquí y no en cada dibujo: es la única forma de que
- * cuarenta y dos ilustraciones mantengan el mismo grosor.
  */
 export function Pieza({
   id,
@@ -94,26 +91,9 @@ export function Pieza({
   const Dibujo = DIBUJOS[id]
   if (!Dibujo) return null
 
-  const nombre = decorativa ? undefined : textos.piezas[id]
-
   return (
-    <svg
-      viewBox={`0 0 ${LIENZO} ${LIENZO}`}
-      className={className}
-      role="img"
-      aria-hidden={nombre === undefined || undefined}
-      aria-label={nombre}
-      focusable="false"
-    >
-      <g
-        stroke={TRAZO}
-        strokeWidth={GROSOR}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        vectorEffect="non-scaling-stroke"
-      >
-        <Dibujo />
-      </g>
-    </svg>
+    <Lienzo nombre={decorativa ? undefined : textos.piezas[id]} className={className}>
+      <Dibujo />
+    </Lienzo>
   )
 }
