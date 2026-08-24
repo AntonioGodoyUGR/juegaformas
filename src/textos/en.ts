@@ -121,6 +121,7 @@ export const en: Textos = {
     volumen: 'Volume',
     silencio: 'Sound off',
     reiniciar: {
+      titulo: "What's been played",
       boton: 'Start over',
       pregunta: 'Everything played is deleted and the game goes back to the beginning. This cannot be undone.',
       confirmar: 'Yes, delete it',

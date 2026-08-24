@@ -122,6 +122,7 @@ export const es: Textos = {
     volumen: 'Volumen',
     silencio: 'Sin sonido',
     reiniciar: {
+      titulo: 'Lo jugado',
       boton: 'Empezar de cero',
       pregunta: 'Se borra todo lo jugado y el juego vuelve al principio. Esto no se puede deshacer.',
       confirmar: 'Sí, borrar',

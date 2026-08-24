@@ -142,7 +142,7 @@ function Reinicio() {
 
   if (!preguntando) {
     return (
-      <Bloque titulo={textos.ajustes.reiniciar.boton}>
+      <Bloque titulo={textos.ajustes.reiniciar.titulo}>
         <button
           type="button"
           onClick={() => setPreguntando(true)}
@@ -155,7 +155,7 @@ function Reinicio() {
   }
 
   return (
-    <Bloque titulo={textos.ajustes.reiniciar.boton}>
+    <Bloque titulo={textos.ajustes.reiniciar.titulo}>
       <p className="text-base text-purple-900">{textos.ajustes.reiniciar.pregunta}</p>
 
       <div className="flex gap-3">

@@ -132,6 +132,9 @@ export type Ajustes = {
  * que sí.
  */
 export type Reinicio = {
+  /** El nombre de la sección, que no es el del botón: uno dice de qué va esto
+   * —lo que el niño lleva jugado— y el otro qué le pasa si se toca. */
+  readonly titulo: string
   readonly boton: string
   readonly pregunta: string
   readonly confirmar: string
