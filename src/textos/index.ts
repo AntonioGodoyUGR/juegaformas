@@ -53,6 +53,12 @@ export type Textos = {
    * informar de nada: ninguna lleva números dentro.
    */
   readonly celebracion: Celebracion
+  /**
+   * Lo único del juego que no es para el niño. Son frases de adulto —completas,
+   * con sus consecuencias dichas— porque quien las lee está a punto de cambiar
+   * el idioma de la tablet de su hijo o de borrarle lo jugado.
+   */
+  readonly ajustes: Ajustes
 }
 
 /** Los anuncios del arrastre. Frases sueltas, sin nombre de pieza dentro: el
@@ -107,6 +113,29 @@ export type Celebracion = {
   readonly nivel: string
   /** El único toque que pide la celebración grande. */
   readonly seguir: string
+}
+
+export type Ajustes = {
+  /** El botón de la esquina. Dice cómo se abre, porque un toque no lo abre. */
+  readonly abrir: string
+  readonly titulo: string
+  readonly idioma: string
+  readonly volumen: string
+  /** El extremo de abajo del volumen. A cero no es «0 %», es que no suena. */
+  readonly silencio: string
+  readonly reiniciar: Reinicio
+}
+
+/**
+ * Borrar el progreso, en dos pasos. El primero no borra nada: lo que hace es
+ * contar qué se pierde, que es lo que un adulto necesita saber antes de decir
+ * que sí.
+ */
+export type Reinicio = {
+  readonly boton: string
+  readonly pregunta: string
+  readonly confirmar: string
+  readonly cancelar: string
 }
 
 /**

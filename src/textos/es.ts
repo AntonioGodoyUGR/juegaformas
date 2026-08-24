@@ -114,4 +114,18 @@ export const es: Textos = {
     nivel: '¡Lo has conseguido!',
     seguir: 'Seguir jugando',
   },
+
+  ajustes: {
+    abrir: 'Ajustes. Mantén pulsado para abrir',
+    titulo: 'Ajustes',
+    idioma: 'Idioma',
+    volumen: 'Volumen',
+    silencio: 'Sin sonido',
+    reiniciar: {
+      boton: 'Empezar de cero',
+      pregunta: 'Se borra todo lo jugado y el juego vuelve al principio. Esto no se puede deshacer.',
+      confirmar: 'Sí, borrar',
+      cancelar: 'Cancelar',
+    },
+  },
 }

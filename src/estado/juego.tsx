@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
-import { guardar, elegirIdioma, leer, porDefecto } from '../lib/progreso'
+import { guardar, elegirIdioma, leer, porDefecto, reiniciar as limpiar } from '../lib/progreso'
 import type { Guardado, Idioma } from '../lib/progreso'
 import { textosDe } from '../textos'
 import type { Textos } from '../textos'
@@ -15,6 +15,8 @@ type Juego = {
   readonly textos: Textos
   cambiarIdioma: (idioma: Idioma) => void
   actualizar: (cambio: (estado: Guardado) => Guardado) => void
+  /** Borrarlo todo. Lo pide un adulto desde ajustes, y no se puede deshacer. */
+  reiniciar: () => void
 }
 
 /**
@@ -28,6 +30,7 @@ const SIN_PROVEEDOR: Juego = {
   textos: textosDe('es'),
   cambiarIdioma: () => {},
   actualizar: () => {},
+  reiniciar: () => {},
 }
 
 const Contexto = createContext<Juego>(SIN_PROVEEDOR)
@@ -46,7 +49,11 @@ export function ProveedorDeJuego({
   almacen?: Storage
   preferencias?: readonly string[]
 }) {
-  const [guardado, setGuardado] = useState(() => leer(almacen, elegirIdioma(preferencias)))
+  // El idioma del aparato se mira una vez, al arrancar, y se recuerda: es el
+  // que hay que volver a poner al reiniciar, porque reiniciar es dejar la
+  // tablet como recién instalada y no como la dejó el último adulto.
+  const [delAparato] = useState(() => elegirIdioma(preferencias))
+  const [guardado, setGuardado] = useState(() => leer(almacen, delAparato))
 
   useEffect(() => {
     guardar(guardado, almacen)
@@ -65,9 +72,16 @@ export function ProveedorDeJuego({
     setGuardado((estado) => (estado.idioma === idioma ? estado : { ...estado, idioma }))
   }, [])
 
+  // Se borra el almacenamiento y además se pone el estado limpio en memoria: el
+  // efecto de arriba lo volverá a escribir enseguida, y eso es justo lo que se
+  // quiere —lo que queda guardado es un juego recién instalado, no un hueco—.
+  const reiniciar = useCallback(() => {
+    setGuardado(limpiar(almacen, delAparato))
+  }, [almacen, delAparato])
+
   const valor = useMemo<Juego>(
-    () => ({ guardado, textos: textosDe(guardado.idioma), cambiarIdioma, actualizar }),
-    [guardado, cambiarIdioma, actualizar],
+    () => ({ guardado, textos: textosDe(guardado.idioma), cambiarIdioma, actualizar, reiniciar }),
+    [guardado, cambiarIdioma, actualizar, reiniciar],
   )
 
   return <Contexto.Provider value={valor}>{children}</Contexto.Provider>

@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { EsquinaDeAjustes } from '../componentes/Ajustes'
 import { useTextos } from '../estado/juego'
 import { IconoDeMecanica } from '../iconos/mecanicas'
 import { MECANICAS } from '../lib/dominio'
@@ -18,7 +19,9 @@ export default function Inicio() {
   const textos = useTextos()
 
   return (
-    <main className="flex h-full flex-col items-center justify-center gap-8 bg-purple-50 p-6">
+    <main className="relative flex h-full flex-col items-center justify-center gap-8 bg-purple-50 p-6">
+      <EsquinaDeAjustes />
+
       <h1 className="text-3xl font-bold text-purple-700 sm:text-4xl">{textos.nombre}</h1>
 
       {/* En fila y siempre en fila: la tablet se sostiene apaisada. Las tres

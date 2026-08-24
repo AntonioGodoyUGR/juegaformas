@@ -113,4 +113,18 @@ export const en: Textos = {
     nivel: 'You did it!',
     seguir: 'Keep playing',
   },
+
+  ajustes: {
+    abrir: 'Settings. Press and hold to open',
+    titulo: 'Settings',
+    idioma: 'Language',
+    volumen: 'Volume',
+    silencio: 'Sound off',
+    reiniciar: {
+      boton: 'Start over',
+      pregunta: 'Everything played is deleted and the game goes back to the beginning. This cannot be undone.',
+      confirmar: 'Yes, delete it',
+      cancelar: 'Cancel',
+    },
+  },
 }

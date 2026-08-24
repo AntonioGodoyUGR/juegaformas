@@ -13,4 +13,6 @@ export const rutas = {
   inicio: '/',
   temas: (mecanica: Mecanica) => `/${mecanica}`,
   partida: (mecanica: Mecanica, tema: Tema) => `/${mecanica}/${tema}`,
+  /** Los ajustes del adulto. Se llega manteniendo pulsado, nunca desde un enlace del juego. */
+  ajustes: '/ajustes',
 } as const

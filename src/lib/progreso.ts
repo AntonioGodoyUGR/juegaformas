@@ -111,13 +111,21 @@ export function guardar(estado: Guardado, almacen: Pick<Storage, 'setItem'> = lo
   }
 }
 
-export function reiniciar(almacen: Pick<Storage, 'removeItem'> = localStorage): Guardado {
+/**
+ * Borrar y volver a empezar. El idioma se le pasa porque reiniciar es dejar el
+ * aparato como recién instalado, y recién instalado el juego habla en el idioma
+ * del aparato: no en el que un adulto eligió una vez y ya no está.
+ */
+export function reiniciar(
+  almacen: Pick<Storage, 'removeItem'> = localStorage,
+  idioma: Idioma = 'es',
+): Guardado {
   try {
     almacen.removeItem(CLAVE)
   } catch {
     // Da igual: lo que se devuelve ya es el estado limpio.
   }
-  return porDefecto()
+  return porDefecto(idioma)
 }
 
 /** Suma una partida completada. Devuelve un estado nuevo; no muta el anterior. */
