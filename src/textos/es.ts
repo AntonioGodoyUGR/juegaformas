@@ -108,4 +108,10 @@ export const es: Textos = {
     destino: (nombre) => `${nombre}. Aquí va`,
     pareja: (nombre) => `${nombre}. Aquí está la pareja`,
   },
+
+  celebracion: {
+    partida: '¡Muy bien!',
+    nivel: '¡Lo has conseguido!',
+    seguir: 'Seguir jugando',
+  },
 }

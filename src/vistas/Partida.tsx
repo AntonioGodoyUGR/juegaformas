@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
+import { CelebracionBreve, CelebracionDeNivel } from '../componentes/Celebracion'
 import { Volver } from '../componentes/Volver'
 import { useJuego, useTextos } from '../estado/juego'
 import { type Mecanica, type Tema, esMecanica, esTema } from '../lib/dominio'
 import { juegaBocaAbajo } from '../lib/emparejar'
+import { completaNivel } from '../lib/niveles'
 import { criterioDe } from '../lib/ordenar'
 import { type Partida as Tablero, generarPartida } from '../lib/partida'
 import { anotarPartida } from '../lib/progreso'
@@ -40,12 +42,23 @@ export default function Partida() {
 }
 
 /**
- * Cuánto se queda en pantalla el tablero recién terminado antes de repartir el
- * siguiente. Sin la pausa, la última pieza que el niño encaja desaparece en el
- * mismo gesto y parece que se ha roto algo. Lo que llena este hueco —la
- * celebración— es el ticket 10; hasta entonces es solo un respiro.
+ * Cuánto se queda en pantalla el tablero recién terminado, con la celebración
+ * breve encima, antes de que pase lo siguiente. Sin esta pausa la última pieza
+ * que el niño encaja desaparece en el mismo gesto de encajarla y parece que se
+ * ha roto algo.
+ *
+ * Poco más de un segundo: lo justo para que se vea que ha salido bien y no
+ * tanto como para que el niño tenga que esperar a que el juego termine de
+ * felicitarle.
  */
-const PAUSA = 900
+const CELEBRACION = 1200
+
+/**
+ * Qué se ve encima del tablero. `partida` es una capa que se va sola; `nivel`
+ * es una pantalla entera que espera un toque. Son un estado y no dos banderas
+ * porque nunca se solapan: la grande sustituye a la breve, no se suma.
+ */
+type Celebrando = 'ninguna' | 'partida' | 'nivel'
 
 /**
  * Una partida detrás de otra sobre la misma mecánica y el mismo tema. El juego
@@ -63,6 +76,7 @@ function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
   // por detrás de las otras.
   const [completadas, setCompletadas] = useState(guardado.completadas[mecanica])
   const [partida, setPartida] = useState<Tablero>(() => generarPartida(mecanica, tema, completadas))
+  const [celebrando, setCelebrando] = useState<Celebrando>('ninguna')
   const espera = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // Si el niño sale a mitad de la pausa, el temporizador no debe repartir un
@@ -70,19 +84,42 @@ function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
   useEffect(() => () => clearTimeout(espera.current), [])
 
   function alTerminar() {
+    // El progreso se anota al terminar el tablero y no al salir de la
+    // celebración: si el niño cierra la aplicación mirando las estrellas, la
+    // partida que acaba de resolver ya está contada.
     actualizar((estado) => anotarPartida(estado, mecanica))
+    setCelebrando('partida')
 
+    // Las dos celebraciones empiezan igual —la capa breve encima del tablero
+    // resuelto— y se separan aquí: si esta partida cerraba el nivel, lo que
+    // viene después no es otro tablero, sino la pantalla que lo dice.
     espera.current = setTimeout(() => {
-      const siguiente = completadas + 1
-      setCompletadas(siguiente)
-      setPartida(generarPartida(mecanica, tema, siguiente))
-    }, PAUSA)
+      if (completaNivel(mecanica, completadas)) setCelebrando('nivel')
+      else siguiente()
+    }, CELEBRACION)
+  }
+
+  function siguiente() {
+    const hechas = completadas + 1
+    setCelebrando('ninguna')
+    setCompletadas(hechas)
+    setPartida(generarPartida(mecanica, tema, hechas))
+  }
+
+  // La celebración de nivel es una pantalla propia: mientras está, no hay
+  // tablero debajo. La breve sí lo tiene, porque lo que celebra está ahí.
+  if (celebrando === 'nivel') {
+    return (
+      <div className="min-h-0 grow">
+        <CelebracionDeNivel alSeguir={siguiente} />
+      </div>
+    )
   }
 
   // La `key` es la partida contada: al cambiar, la mecánica se monta de cero y
   // no queda nada del tablero anterior.
   return (
-    <div className="min-h-0 grow">
+    <div className="relative min-h-0 grow">
       {mecanica === 'encajar' ? (
         <Encajar key={completadas} partida={partida} alTerminar={alTerminar} />
       ) : mecanica === 'emparejar' ? (
@@ -100,6 +137,8 @@ function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
           alTerminar={alTerminar}
         />
       )}
+
+      {celebrando === 'partida' && <CelebracionBreve />}
     </div>
   )
 }

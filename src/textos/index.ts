@@ -47,6 +47,12 @@ export type Textos = {
    * atasco.
    */
   readonly pista: Pistas
+  /**
+   * Lo que dice el juego cuando algo sale bien. Es el único premio que hay, así
+   * que son frases para decírselas a un niño de cinco años en voz alta, no para
+   * informar de nada: ninguna lleva números dentro.
+   */
+  readonly celebracion: Celebracion
 }
 
 /** Los anuncios del arrastre. Frases sueltas, sin nombre de pieza dentro: el
@@ -87,6 +93,20 @@ export type Pistas = {
   readonly destino: (nombre: string) => string
   /** La carta que hace pareja con la que acaba de levantar. */
   readonly pareja: (nombre: string) => string
+}
+
+/**
+ * Las dos celebraciones. Se separan porque no duran lo mismo: la de partida se
+ * lee de un vistazo mientras se va sola, y la de nivel se queda en pantalla
+ * esperando un toque.
+ */
+export type Celebracion = {
+  /** Al resolver un tablero. Encadena con el siguiente sin que nadie toque nada. */
+  readonly partida: string
+  /** Al terminar el nivel entero. */
+  readonly nivel: string
+  /** El único toque que pide la celebración grande. */
+  readonly seguir: string
 }
 
 /**

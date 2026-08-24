@@ -107,4 +107,10 @@ export const en: Textos = {
     destino: (nombre) => `${nombre}. This is where it goes`,
     pareja: (nombre) => `${nombre}. Here is the match`,
   },
+
+  celebracion: {
+    partida: 'Well done!',
+    nivel: 'You did it!',
+    seguir: 'Keep playing',
+  },
 }

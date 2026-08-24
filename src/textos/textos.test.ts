@@ -48,6 +48,14 @@ test.each(CATALOGOS)('%s señala sin dejar de decir qué es lo señalado', (_idi
   expect(textos.pista.pareja('Carta')).not.toBe('Carta')
 })
 
+test.each(CATALOGOS)('%s celebra en su idioma', (_idioma, textos) => {
+  // Es lo único que el juego dice cuando algo sale bien. Una frase vacía deja
+  // la celebración muda, y una celebración muda no se distingue de un fallo.
+  for (const [clave, frase] of Object.entries(textos.celebracion)) {
+    expect(frase, `falta ${clave}`).toBeTruthy()
+  }
+})
+
 test.each(CATALOGOS)('%s nombra las cuarenta y dos piezas', (_idioma, textos) => {
   for (const pieza of todasLasPiezas()) {
     expect(textos.piezas[pieza.id], `falta el nombre de ${pieza.id}`).toBeTruthy()
