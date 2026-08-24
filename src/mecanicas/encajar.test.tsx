@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, test, vi } from 'vitest'
 import { ProveedorDeJuego } from '../estado/juego'
 import { generarPartida } from '../lib/partida'
+import { FALLOS_PARA_PISTA } from '../lib/pista'
 import { textosDe } from '../textos'
 import { Encajar } from './Encajar'
 
@@ -193,5 +194,80 @@ describe('terminar', () => {
     for (const pieza of piezas) arrastrar(pieza, { desviado: NINGUNA_PARTE })
 
     expect(alTerminar).not.toHaveBeenCalled()
+  })
+})
+
+describe('la pista', () => {
+  /** El hueco que está señalado ahora mismo, si hay alguno. */
+  const senalado = () => document.querySelector('[data-pista]')
+
+  /** Se atasca: intenta meter una pieza donde no va, tantas veces como se diga. */
+  function atascarse(pieza: string, donde: string, veces = FALLOS_PARA_PISTA) {
+    for (let i = 0; i < veces; i++) arrastrar(pieza, { hasta: donde })
+  }
+
+  test('un fallo no es estar atascado: todavía no se señala nada', () => {
+    const [pieza, otra] = montar()
+
+    atascarse(pieza, otra, FALLOS_PARA_PISTA - 1)
+
+    expect(senalado()).toBeNull()
+  })
+
+  test('tras varios fallos se señala el hueco de la pieza que está intentando', () => {
+    const [pieza, otra] = montar()
+
+    atascarse(pieza, otra)
+
+    expect(senalado()?.getAttribute('data-hueco')).toBe(pieza)
+  })
+
+  test('el hueco señalado también lo dice en voz alta', () => {
+    // Un destello no se oye. Sin esto, un niño que juega con lector de pantalla
+    // sería el único que no sale del atasco.
+    const [pieza, otra] = montar()
+
+    atascarse(pieza, otra)
+
+    expect(senalado()?.getAttribute('aria-label')).toBe(
+      textos.pista.destino(textos.piezas[pieza]),
+    )
+  })
+
+  test('señalar no encaja la pieza ni acaba el tablero: la lleva él', () => {
+    const alTerminar = vi.fn()
+    const [pieza, otra] = montar(alTerminar)
+
+    atascarse(pieza, otra)
+
+    expect(encajada(pieza)).toBe(false)
+    expect(ficha(pieza)).toBeInTheDocument()
+    expect(alTerminar).not.toHaveBeenCalled()
+
+    arrastrar(pieza, { hasta: pieza })
+    expect(encajada(pieza)).toBe(true)
+  })
+
+  test('la pista sigue a la pieza que el niño tiene en la mano', () => {
+    const [pieza, otra, tercera] = montar()
+
+    atascarse(pieza, otra, FALLOS_PARA_PISTA - 1)
+    arrastrar(otra, { hasta: tercera })
+
+    // Se atascó con una y cambió a otra: lo que se señala es lo que está
+    // intentando ahora, no lo que intentaba hace tres fallos.
+    expect(senalado()?.getAttribute('data-hueco')).toBe(otra)
+  })
+
+  test('acertar borra la cuenta: hay que volver a atascarse', () => {
+    const [pieza, otra, tercera] = montar()
+
+    atascarse(pieza, otra, FALLOS_PARA_PISTA - 1)
+    arrastrar(pieza, { hasta: pieza })
+
+    expect(senalado()).toBeNull()
+
+    atascarse(otra, tercera, FALLOS_PARA_PISTA - 1)
+    expect(senalado()).toBeNull()
   })
 })

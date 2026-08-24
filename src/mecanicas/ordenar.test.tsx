@@ -3,6 +3,7 @@ import { describe, expect, test, vi } from 'vitest'
 import { ProveedorDeJuego } from '../estado/juego'
 import type { Criterio } from '../lib/ordenar'
 import { generarPartida } from '../lib/partida'
+import { FALLOS_PARA_PISTA } from '../lib/pista'
 import { textosDe } from '../textos'
 import { Ordenar } from './Ordenar'
 
@@ -281,5 +282,67 @@ describe('terminar', () => {
     for (const grado of GRADOS) arrastrar(grado, { desviado: NINGUNA_PARTE })
 
     expect(alTerminar).not.toHaveBeenCalled()
+  })
+})
+
+describe('la pista', () => {
+  /** El sitio que está señalado ahora mismo, si hay alguno. */
+  const senalado = () => document.querySelector('[data-pista]')
+
+  /** Se atasca: lleva un eslabón a un sitio que no es el suyo, varias veces. */
+  function atascarse(grado: number, donde: number, veces = FALLOS_PARA_PISTA) {
+    for (let i = 0; i < veces; i++) arrastrar(grado, { hasta: donde })
+  }
+
+  test('un fallo no es estar atascado: todavía no se señala nada', () => {
+    montar('tamano')
+
+    atascarse(1, 3, FALLOS_PARA_PISTA - 1)
+
+    expect(senalado()).toBeNull()
+  })
+
+  test('tras varios fallos se señala el sitio del eslabón que está intentando', () => {
+    montar('tamano')
+
+    atascarse(1, 3)
+
+    expect(senalado()?.getAttribute('data-sitio')).toBe('1')
+  })
+
+  test('el sitio señalado también lo dice en voz alta', () => {
+    montar('tamano')
+
+    atascarse(2, 3)
+
+    expect(senalado()?.getAttribute('aria-label')).toBe(
+      textos.pista.destino(textos.orden.sitio(2, GRADOS.length)),
+    )
+  })
+
+  test('señalar no coloca el eslabón ni acaba la secuencia: lo lleva él', () => {
+    const alTerminar = vi.fn()
+    const pieza = montar('tamano', alTerminar)
+
+    atascarse(1, 3)
+
+    expect(colocado('tamano', pieza, 1)).toBe(false)
+    expect(eslabon(1)).toBeInTheDocument()
+    expect(alTerminar).not.toHaveBeenCalled()
+
+    arrastrar(1, { hasta: 1 })
+    expect(colocado('tamano', pieza, 1)).toBe(true)
+  })
+
+  test('acertar borra la cuenta: hay que volver a atascarse', () => {
+    montar('tamano')
+
+    atascarse(1, 3, FALLOS_PARA_PISTA - 1)
+    arrastrar(1, { hasta: 1 })
+
+    expect(senalado()).toBeNull()
+
+    atascarse(2, 3, FALLOS_PARA_PISTA - 1)
+    expect(senalado()).toBeNull()
   })
 })

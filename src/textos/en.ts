@@ -102,4 +102,9 @@ export const en: Textos = {
     cantidad: (pieza, cuantas) => `${pieza}, quantity ${cuantas}`,
     sitio: (sitio, total) => `Place ${sitio} of ${total}`,
   },
+
+  pista: {
+    destino: (nombre) => `${nombre}. This is where it goes`,
+    pareja: (nombre) => `${nombre}. Here is the match`,
+  },
 }

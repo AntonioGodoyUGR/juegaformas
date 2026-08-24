@@ -7,11 +7,14 @@ import {
   estaEmparejada,
   estaTerminado,
   estaVisible,
+  parejaPendiente,
   recoger,
   tocar,
 } from '../lib/emparejar'
 import type { Partida } from '../lib/partida'
+import { SIN_PISTA, acertar, fallar, hayPista } from '../lib/pista'
 import { Pieza } from '../piezas'
+import { SENAL } from './senal'
 
 /**
  * El tablero de `emparejar`: las cartas en rejilla y el niño tocando las que
@@ -35,6 +38,7 @@ export function Emparejar({
 }) {
   const textos = useTextos()
   const [tablero, setTablero] = useState(() => crearTablero(partida, bocaAbajo))
+  const [pista, setPista] = useState(SIN_PISTA)
 
   // Cuando hay una pareja fallada a la vista, se recoge sola. El rato que se
   // queda es lo que el niño necesita para mirar qué ha salido —boca abajo eso
@@ -50,9 +54,19 @@ export function Emparejar({
     const resultado = tocar(tablero, carta)
     if (resultado.tablero === tablero) return
 
+    // Se cuentan parejas falladas, no toques: levantar la primera carta no es
+    // fallar nada todavía.
+    if (resultado.toque === 'fallo') setPista((anterior) => fallar(anterior))
+    if (resultado.toque === 'acierto') setPista(acertar)
+
     setTablero(resultado.tablero)
     if (estaTerminado(resultado.tablero)) alTerminar()
   }
+
+  // A quién señalar: a la pareja de la única carta levantada. Mientras no haya
+  // exactamente una levantada no hay nada que señalar, así que la pista de esta
+  // mecánica va apareciendo con el juego en vez de quedarse fija en pantalla.
+  const senalada = hayPista(pista) ? parejaPendiente(tablero) : null
 
   return (
     <div className="flex h-full items-center justify-center p-4">
@@ -65,6 +79,8 @@ export function Emparejar({
             hecha={estaEmparejada(tablero, carta.pieza)}
             nombre={textos.piezas[carta.pieza]}
             tapada={textos.cartaTapada}
+            senalada={carta.id === senalada}
+            pareja={textos.pista.pareja}
             alTocar={alTocar}
           />
         ))}
@@ -94,6 +110,8 @@ function Carta({
   hecha,
   nombre,
   tapada,
+  senalada,
+  pareja,
   alTocar,
 }: {
   carta: Naipe
@@ -101,20 +119,28 @@ function Carta({
   hecha: boolean
   nombre: string
   tapada: string
+  senalada: boolean
+  pareja: (nombre: string) => string
   alTocar: (carta: string) => void
 }) {
+  // Tapada y señalada sigue sin decir qué pieza es: la pista dice dónde está la
+  // pareja, no cuál es. Eso lo descubre el niño al tocarla, que es el gesto que
+  // la pista no le quita.
+  const etiqueta = visible ? nombre : tapada
+
   return (
     <button
       type="button"
       data-carta={carta.id}
+      data-pista={senalada ? 'true' : undefined}
       disabled={hecha}
       // Con el dibujo a la vista, la carta se llama como la pieza; tapada, el
       // nombre sería el juego resuelto para quien no mira la pantalla.
-      aria-label={visible ? nombre : tapada}
+      aria-label={senalada ? pareja(etiqueta) : etiqueta}
       onClick={() => alTocar(carta.id)}
       className={`flex size-28 items-center justify-center rounded-3xl transition-colors sm:size-36 ${
         hecha ? 'bg-purple-100' : visible ? 'bg-white' : 'bg-purple-400'
-      }`}
+      } ${senalada ? SENAL : ''}`}
     >
       {visible ? <Pieza id={carta.pieza} className="size-full" decorativa /> : <Reverso />}
     </button>

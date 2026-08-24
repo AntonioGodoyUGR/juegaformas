@@ -39,6 +39,15 @@ test.each(CATALOGOS)('%s cuenta una secuencia con la pieza y el número dentro',
   expect(textos.orden.sitio(1, 3)).not.toBe(textos.orden.sitio(2, 3))
 })
 
+test.each(CATALOGOS)('%s señala sin dejar de decir qué es lo señalado', (_idioma, textos) => {
+  // La pista se suma al nombre, no lo sustituye: quien la oye tiene que seguir
+  // sabiendo qué hay ahí, además de que es lo señalado.
+  expect(textos.pista.destino('Sitio 2 de 3')).toContain('Sitio 2 de 3')
+  expect(textos.pista.destino('Sitio 2 de 3')).not.toBe('Sitio 2 de 3')
+  expect(textos.pista.pareja('Carta')).toContain('Carta')
+  expect(textos.pista.pareja('Carta')).not.toBe('Carta')
+})
+
 test.each(CATALOGOS)('%s nombra las cuarenta y dos piezas', (_idioma, textos) => {
   for (const pieza of todasLasPiezas()) {
     expect(textos.piezas[pieza.id], `falta el nombre de ${pieza.id}`).toBeTruthy()

@@ -8,6 +8,7 @@ import {
   estaTerminado,
   estaVisible,
   juegaBocaAbajo,
+  parejaPendiente,
   recoger,
   tocar,
 } from './emparejar'
@@ -257,5 +258,43 @@ describe('cuándo se juega boca abajo', () => {
 
     expect(juegaBocaAbajo(vuelta)).toBe(false)
     expect(juegaBocaAbajo(vuelta + BOCA_ABAJO_DESDE)).toBe(true)
+  })
+})
+
+describe('a quién señala la pista', () => {
+  // La pista de esta mecánica no sabe a qué señalar en el momento de fallar:
+  // fallar es que dos cartas no eran pareja, y ninguna de las dos era «la
+  // buena». La respuesta aparece después, cuando el niño levanta una sola.
+
+  test('con una carta levantada, señala a su pareja', () => {
+    const tablero = tableroDe(true)
+    const [una, otra] = parejaDe(tablero, tablero.cartas[0].pieza)
+
+    expect(parejaPendiente(tocar(tablero, una).tablero)).toBe(otra)
+    expect(parejaPendiente(tocar(tablero, otra).tablero)).toBe(una)
+  })
+
+  test('sin nada levantado no hay nada que señalar', () => {
+    expect(parejaPendiente(tableroDe(true))).toBe(null)
+  })
+
+  test('con la pareja fallada a la vista tampoco', () => {
+    // Hay dos cartas levantadas y ninguna es la buena: señalar a cualquiera de
+    // las dos sería mentir.
+    let tablero = tableroDe(true)
+    const [una, otra] = desparejadas(tablero)
+    tablero = tocar(tablero, una).tablero
+    tablero = tocar(tablero, otra).tablero
+
+    expect(parejaPendiente(tablero)).toBe(null)
+  })
+
+  test('después de acertar deja de señalar', () => {
+    let tablero = tableroDe(true)
+    const [una, otra] = parejaDe(tablero, tablero.cartas[0].pieza)
+    tablero = tocar(tablero, una).tablero
+    tablero = tocar(tablero, otra).tablero
+
+    expect(parejaPendiente(tablero)).toBe(null)
   })
 })

@@ -103,4 +103,9 @@ export const es: Textos = {
     cantidad: (pieza, cuantas) => `${pieza}, cantidad ${cuantas}`,
     sitio: (sitio, total) => `Sitio ${sitio} de ${total}`,
   },
+
+  pista: {
+    destino: (nombre) => `${nombre}. Aquí va`,
+    pareja: (nombre) => `${nombre}. Aquí está la pareja`,
+  },
 }

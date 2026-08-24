@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import { afterEach, describe, expect, test, vi } from 'vitest'
 import { ProveedorDeJuego } from '../estado/juego'
 import { generarPartida } from '../lib/partida'
+import { FALLOS_PARA_PISTA } from '../lib/pista'
 import { textosDe } from '../textos'
 import { Emparejar } from './Emparejar'
 
@@ -186,5 +187,93 @@ describe('los dos modos se juegan igual', () => {
 
     expect(acabadas).toHaveBeenCalledTimes(1)
     for (const carta of todasLasCartas()) expect(carta).toBeDisabled()
+  })
+})
+
+describe('la pista', () => {
+  /** La carta que está señalada ahora mismo, si hay alguna. */
+  const senalada = () => document.querySelector('[data-pista]')
+
+  /** Falla una pareja entera y espera a que el tablero la recoja. */
+  function fallarPareja(una: string, otra: string) {
+    tocar(cartasDe(una)[0])
+    tocar(cartasDe(otra)[0])
+    esperar()
+  }
+
+  /** Se atasca: falla la misma pareja imposible tantas veces como se diga. */
+  function atascarse(una: string, otra: string, veces = FALLOS_PARA_PISTA) {
+    for (let i = 0; i < veces; i++) fallarPareja(una, otra)
+  }
+
+  test('una pareja fallada no es estar atascado', () => {
+    const [pieza, otra] = montar(true)
+
+    atascarse(pieza, otra, FALLOS_PARA_PISTA - 1)
+    tocar(cartasDe(pieza)[0])
+
+    expect(senalada()).toBeNull()
+  })
+
+  test('tras varias parejas falladas se señala la pareja de la carta levantada', () => {
+    const [pieza, otra] = montar(true)
+
+    atascarse(pieza, otra)
+    tocar(cartasDe(pieza)[0])
+
+    expect(senalada()).toBe(cartasDe(pieza)[1])
+  })
+
+  test('la pista dice dónde está la pareja, no cuál es', () => {
+    // Boca abajo, la carta señalada sigue tapada: qué pieza esconde lo descubre
+    // el niño al tocarla, que es justo el gesto que la pista no le quita.
+    const [pieza, otra] = montar(true)
+
+    atascarse(pieza, otra)
+    tocar(cartasDe(pieza)[0])
+
+    const marcada = cartasDe(pieza)[1]
+    expect(nombreDe(marcada)).toBe(textos.pista.pareja(textos.cartaTapada))
+    expect(nombreDe(marcada)).not.toContain(textos.piezas[pieza])
+  })
+
+  test('señalar no hace la pareja ni acaba la partida: la toca él', () => {
+    const acabadas = vi.fn()
+    const [pieza, otra] = montar(true, acabadas)
+
+    atascarse(pieza, otra)
+    tocar(cartasDe(pieza)[0])
+
+    expect(cartasDe(pieza)[1]).toBeEnabled()
+    expect(acabadas).not.toHaveBeenCalled()
+
+    tocar(cartasDe(pieza)[1])
+    for (const carta of cartasDe(pieza)) expect(carta).toBeDisabled()
+  })
+
+  test('mientras la pareja fallada está a la vista no se señala nada', () => {
+    // Hay dos cartas levantadas y ninguna es la buena: señalar a cualquiera de
+    // las dos sería mentir.
+    const [pieza, otra] = montar(true)
+
+    atascarse(pieza, otra)
+    tocar(cartasDe(pieza)[0])
+    tocar(cartasDe(otra)[0])
+
+    expect(senalada()).toBeNull()
+  })
+
+  test('acertar borra la cuenta: hay que volver a atascarse', () => {
+    const [pieza, otra, tercera] = montar(true)
+
+    atascarse(pieza, otra, FALLOS_PARA_PISTA - 1)
+    tocar(cartasDe(pieza)[0])
+    tocar(cartasDe(pieza)[1])
+    esperar()
+
+    atascarse(otra, tercera, FALLOS_PARA_PISTA - 1)
+    tocar(cartasDe(otra)[0])
+
+    expect(senalada()).toBeNull()
   })
 })

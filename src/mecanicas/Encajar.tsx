@@ -3,8 +3,10 @@ import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/co
 import { useTextos } from '../estado/juego'
 import { crearTablero, estaEncajada, estaTerminado, soltar } from '../lib/encajar'
 import type { Partida } from '../lib/partida'
+import { SIN_PISTA, acertar, estaSenalado, fallar } from '../lib/pista'
 import { Pieza } from '../piezas'
 import { detectarHueco, useAnunciosDeArrastre, useSensoresDeArrastre } from './arrastre'
+import { SENAL } from './senal'
 
 /**
  * El tablero de `encajar`: los huecos arriba, las fichas abajo, y el dedo entre
@@ -19,6 +21,7 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
   const textos = useTextos()
   const [tablero, setTablero] = useState(() => crearTablero(partida))
   const [arrastrada, setArrastrada] = useState<string | null>(null)
+  const [pista, setPista] = useState(SIN_PISTA)
 
   const sensores = useSensoresDeArrastre()
   const accesibilidad = useAnunciosDeArrastre(textos.arrastre.instrucciones)
@@ -26,8 +29,16 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
   function alSoltar(pieza: string, hueco: string | null) {
     setArrastrada(null)
     const resultado = soltar(tablero, pieza, hueco)
-    if (!resultado.acierto) return
+    if (!resultado.acierto) {
+      // Lo que se señala tras varios fallos seguidos es el hueco de la pieza
+      // que el niño acaba de intentar, que en `encajar` se llama igual que
+      // ella. Señalarlo es todo lo que pasa: la pieza sigue en la bandeja y la
+      // tiene que llevar él.
+      setPista((anterior) => fallar(anterior, pieza))
+      return
+    }
 
+    setPista(acertar)
     setTablero(resultado.tablero)
     if (estaTerminado(resultado.tablero)) alTerminar()
   }
@@ -47,7 +58,16 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
       <div className="flex h-full flex-col justify-center gap-8 p-4">
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
           {tablero.huecos.map((pieza) => (
-            <Hueco key={pieza.id} id={pieza.id} lleno={estaEncajada(tablero, pieza.id)} />
+            <Hueco
+              key={pieza.id}
+              id={pieza.id}
+              lleno={estaEncajada(tablero, pieza.id)}
+              senal={
+                estaSenalado(pista, pieza.id)
+                  ? textos.pista.destino(textos.piezas[pieza.id])
+                  : undefined
+              }
+            />
           ))}
         </div>
 
@@ -73,8 +93,13 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
   )
 }
 
-/** Un sitio del tablero donde va una pieza concreta. */
-function Hueco({ id, lleno }: { id: string; lleno: boolean }) {
+/**
+ * Un sitio del tablero donde va una pieza concreta. `senal` es cómo se llama
+ * cuando la pista lo está señalando, y venir o no venir es lo que decide si
+ * late: un hueco normal no tiene nombre porque su pieza ya está nombrada en la
+ * bandeja, y uno señalado sí, porque ahora dice algo que no dice nadie más.
+ */
+function Hueco({ id, lleno, senal }: { id: string; lleno: boolean; senal?: string }) {
   // Un hueco ya lleno sale del sorteo: así una pieza soltada entre dos va al
   // que de verdad puede recibirla, y no al que le pilla más cerca y está
   // ocupado.
@@ -84,9 +109,16 @@ function Hueco({ id, lleno }: { id: string; lleno: boolean }) {
     <div
       ref={setNodeRef}
       data-hueco={id}
+      data-pista={senal ? 'true' : undefined}
+      // El rol solo existe mientras la pista está puesta, y existe porque un
+      // `div` sin rol es «genérico»: su `aria-label` se lo salta la mitad de
+      // los lectores de pantalla. Un hueco normal no lo necesita, que no tiene
+      // nada que decir.
+      role={senal ? 'note' : undefined}
+      aria-label={senal}
       className={`flex size-28 items-center justify-center rounded-3xl transition-colors sm:size-36 ${
         lleno ? 'bg-transparent' : isOver ? 'bg-purple-200' : 'bg-purple-100'
-      }`}
+      } ${senal ? SENAL : ''}`}
     >
       {/* Mientras el hueco está vacío, la pieza que va en él también está en la
           bandeja con su nombre, y decirlo dos veces solo alarga. Cuando se

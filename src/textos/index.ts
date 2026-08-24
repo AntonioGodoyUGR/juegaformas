@@ -40,6 +40,13 @@ export type Textos = {
    * escribe su frase entera.
    */
   readonly orden: Orden
+  /**
+   * Cómo se dice una pista en voz alta. La pista es sobre todo visual —un
+   * destello sobre el sitio correcto—, y un destello no se oye: sin esto, un
+   * niño que juega con lector de pantalla sería el único que no sale del
+   * atasco.
+   */
+  readonly pista: Pistas
 }
 
 /** Los anuncios del arrastre. Frases sueltas, sin nombre de pieza dentro: el
@@ -67,6 +74,19 @@ export type Orden = {
   readonly cantidad: (pieza: string, cuantas: number) => string
   /** Un sitio vacío de la secuencia. */
   readonly sitio: (sitio: number, total: number) => string
+}
+
+/**
+ * Lo que se añade al nombre de algo cuando la pista lo señala. Se compone con
+ * el nombre en vez de sustituirlo porque la pista no cambia lo que la cosa es:
+ * un sitio de la secuencia sigue siendo el sitio dos de tres, y ahora además
+ * está señalado.
+ */
+export type Pistas = {
+  /** El hueco o el sitio donde va lo que el niño está intentando colocar. */
+  readonly destino: (nombre: string) => string
+  /** La carta que hace pareja con la que acaba de levantar. */
+  readonly pareja: (nombre: string) => string
 }
 
 /**

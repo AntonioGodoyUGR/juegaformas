@@ -127,6 +127,25 @@ export function tocar(tablero: Tablero, carta: string): Resultado {
 }
 
 /**
+ * La otra carta de la que está levantada, o `null` si no hay exactamente una
+ * levantada.
+ *
+ * Es lo que señala la pista en esta mecánica. Aquí el sitio correcto no se sabe
+ * en el momento de fallar —fallar es que dos cartas no eran pareja, y ninguna
+ * de las dos era «la buena»—, sino después, cuando el niño vuelve a levantar
+ * una sola: entonces sí hay una respuesta, y es esta.
+ */
+export function parejaPendiente(tablero: Tablero): string | null {
+  if (tablero.levantadas.length !== 1) return null
+
+  const [levantada] = tablero.levantadas
+  const carta = tablero.cartas.find((c) => c.id === levantada)
+  if (!carta) return null
+
+  return tablero.cartas.find((c) => c.pieza === carta.pieza && c.id !== levantada)?.id ?? null
+}
+
+/**
  * Recoge la pareja fallada. Lo llama la vista cuando se acaba el rato que las
  * dos cartas se quedan a la vista.
  *

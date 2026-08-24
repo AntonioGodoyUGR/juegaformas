@@ -10,8 +10,10 @@ import {
   soltar,
 } from '../lib/ordenar'
 import type { Partida } from '../lib/partida'
+import { SIN_PISTA, acertar, estaSenalado, fallar } from '../lib/pista'
 import { Pieza } from '../piezas'
 import { detectarHueco, useAnunciosDeArrastre, useSensoresDeArrastre } from './arrastre'
+import { SENAL } from './senal'
 
 /**
  * El tablero de `ordenar`: la secuencia arriba, los eslabones sueltos abajo. Las
@@ -41,6 +43,7 @@ export function Ordenar({
   const textos = useTextos()
   const [tablero, setTablero] = useState(() => crearTablero(partida, criterio))
   const [arrastrado, setArrastrado] = useState<number | null>(null)
+  const [pista, setPista] = useState(SIN_PISTA)
 
   const sensores = useSensoresDeArrastre()
   const accesibilidad = useAnunciosDeArrastre(textos.orden.instrucciones[tablero.criterio])
@@ -55,11 +58,29 @@ export function Ordenar({
       : textos.orden.cantidad(nombreDePieza, grado)
   }
 
+  /**
+   * Cómo se llama un sitio: por su número mientras está vacío y por su eslabón
+   * en cuanto se llena. Señalado, además dice que es ahí, porque un sitio que
+   * late no se oye.
+   */
+  function etiquetar(sitio: number) {
+    if (estaColocado(tablero, sitio)) return nombrar(sitio)
+
+    const vacio = textos.orden.sitio(sitio, total)
+    return estaSenalado(pista, String(sitio)) ? textos.pista.destino(vacio) : vacio
+  }
+
   function alSoltar(grado: number, sitio: number | null) {
     setArrastrado(null)
     const resultado = soltar(tablero, grado, sitio)
-    if (!resultado.acierto) return
+    if (!resultado.acierto) {
+      // El sitio que se señalará si los fallos siguen es el del eslabón que el
+      // niño acaba de intentar colocar, caiga donde caiga el que ha soltado.
+      setPista((anterior) => fallar(anterior, String(grado)))
+      return
+    }
 
+    setPista(acertar)
     setTablero(resultado.tablero)
     if (estaTerminado(resultado.tablero)) alTerminar()
   }
@@ -88,9 +109,8 @@ export function Ordenar({
               key={sitio}
               sitio={sitio}
               lleno={estaColocado(tablero, sitio)}
-              nombre={
-                estaColocado(tablero, sitio) ? nombrar(sitio) : textos.orden.sitio(sitio, total)
-              }
+              senalado={estaSenalado(pista, String(sitio))}
+              nombre={etiquetar(sitio)}
             >
               <Dibujo criterio={tablero.criterio} pieza={tablero.pieza} grado={sitio} />
             </Sitio>
@@ -160,11 +180,13 @@ function ladoDeFicha(criterio: Criterio, grado: number, total: number): number {
 function Sitio({
   sitio,
   lleno,
+  senalado,
   nombre,
   children,
 }: {
   sitio: number
   lleno: boolean
+  senalado: boolean
   nombre: string
   children: React.ReactNode
 }) {
@@ -176,11 +198,12 @@ function Sitio({
     <li
       ref={setNodeRef}
       data-sitio={sitio}
+      data-pista={senalado ? 'true' : undefined}
       aria-label={nombre}
       style={cuadrado(ladoDe(sitio))}
       className={`flex items-center justify-center rounded-3xl transition-colors ${
         lleno ? 'bg-transparent' : isOver ? 'bg-purple-200' : 'bg-purple-100'
-      }`}
+      } ${senalado ? SENAL : ''}`}
     >
       {lleno ? children : null}
     </li>
