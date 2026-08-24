@@ -1,21 +1,10 @@
-import { useMemo, useState } from 'react'
-import {
-  type Announcements,
-  type CollisionDetection,
-  type ScreenReaderInstructions,
-  DndContext,
-  DragOverlay,
-  KeyboardSensor,
-  PointerSensor,
-  useDraggable,
-  useDroppable,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core'
+import { useState } from 'react'
+import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
 import { useTextos } from '../estado/juego'
-import { type Diana, crearTablero, estaEncajada, estaTerminado, huecoMasCercano, soltar } from '../lib/encajar'
+import { crearTablero, estaEncajada, estaTerminado, soltar } from '../lib/encajar'
 import type { Partida } from '../lib/partida'
 import { Pieza } from '../piezas'
+import { detectarHueco, useAnunciosDeArrastre, useSensoresDeArrastre } from './arrastre'
 
 /**
  * El tablero de `encajar`: los huecos arriba, las fichas abajo, y el dedo entre
@@ -31,34 +20,8 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
   const [tablero, setTablero] = useState(() => crearTablero(partida))
   const [arrastrada, setArrastrada] = useState<string | null>(null)
 
-  // Ocho píxeles antes de considerar que esto es un arrastre. Sin el margen,
-  // un dedo que solo toca —y un dedo de cinco años nunca toca del todo quieto—
-  // levantaría la pieza y la soltaría en el sitio, que se ve como un parpadeo.
-  const sensores = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(KeyboardSensor),
-  )
-
-  // Sin esto, `@dnd-kit` anuncia el arrastre con sus frases de fábrica, que
-  // están en inglés: un juego en castellano que empieza a hablar en inglés en
-  // cuanto se coge una pieza. Al soltar se distingue encajar de fallar porque
-  // la pieza y su hueco comparten identificador.
-  const anuncios = useMemo<Announcements>(
-    () => ({
-      onDragStart: () => textos.arrastre.cogida,
-      onDragOver: ({ over }) =>
-        over ? textos.arrastre.sobreHueco : textos.arrastre.fueraDeHueco,
-      onDragEnd: ({ active, over }) =>
-        over?.id === active.id ? textos.arrastre.encajada : textos.arrastre.devuelta,
-      onDragCancel: () => textos.arrastre.devuelta,
-    }),
-    [textos],
-  )
-
-  const instrucciones = useMemo<ScreenReaderInstructions>(
-    () => ({ draggable: textos.arrastre.instrucciones }),
-    [textos],
-  )
+  const sensores = useSensoresDeArrastre()
+  const accesibilidad = useAnunciosDeArrastre(textos.arrastre.instrucciones)
 
   function alSoltar(pieza: string, hueco: string | null) {
     setArrastrada(null)
@@ -73,7 +36,7 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
     <DndContext
       sensors={sensores}
       collisionDetection={detectarHueco}
-      accessibility={{ announcements: anuncios, screenReaderInstructions: instrucciones }}
+      accessibility={accesibilidad}
       onDragStart={({ active }) => setArrastrada(String(active.id))}
       // `over` es el hueco que ha ganado la detección, o `null` si la pieza se
       // ha soltado lejos de todos. Fallar es soltar y ya está: sin sonido, sin
@@ -108,35 +71,6 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
       </DragOverlay>
     </DndContext>
   )
-}
-
-/**
- * «Cerca es suficiente», traducido a lo que `@dnd-kit` espera. El criterio no
- * está aquí sino en `huecoMasCercano`, para poder probarlo sin navegador.
- */
-const detectarHueco: CollisionDetection = ({ collisionRect, droppableContainers, droppableRects }) => {
-  const dianas: Diana[] = []
-
-  for (const contenedor of droppableContainers) {
-    const rect = droppableRects.get(contenedor.id)
-    if (!rect) continue
-    dianas.push({
-      id: String(contenedor.id),
-      recuadro: { x: rect.left, y: rect.top, ancho: rect.width, alto: rect.height },
-    })
-  }
-
-  const elegido = huecoMasCercano(
-    {
-      x: collisionRect.left,
-      y: collisionRect.top,
-      ancho: collisionRect.width,
-      alto: collisionRect.height,
-    },
-    dianas,
-  )
-
-  return elegido === null ? [] : [{ id: elegido }]
 }
 
 /** Un sitio del tablero donde va una pieza concreta. */

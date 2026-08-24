@@ -90,4 +90,16 @@ export const en: Textos = {
   },
 
   cartaTapada: 'Card to turn over',
+
+  orden: {
+    instrucciones: {
+      tamano:
+        'Place the pieces from smallest to biggest. With a keyboard: space to pick one up, arrow keys to move it and space again to drop it.',
+      cantidad:
+        'Place the pieces from fewest to most. With a keyboard: space to pick one up, arrow keys to move it and space again to drop it.',
+    },
+    tamano: (pieza, grado, total) => `${pieza}, size ${grado} of ${total}`,
+    cantidad: (pieza, cuantas) => `${pieza}, quantity ${cuantas}`,
+    sitio: (sitio, total) => `Place ${sitio} of ${total}`,
+  },
 }

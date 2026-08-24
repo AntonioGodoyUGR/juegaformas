@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 import { MECANICAS, TEMAS } from '../lib/dominio'
+import { CRITERIOS } from '../lib/ordenar'
 import { todasLasPiezas } from '../lib/piezas'
 import { IDIOMAS } from '../lib/progreso'
 import { textosDe } from './index'
@@ -22,6 +23,20 @@ test.each(CATALOGOS)('%s dice en su idioma lo que pasa al arrastrar', (_idioma, 
   for (const [clave, frase] of Object.entries(textos.arrastre)) {
     expect(frase, `falta ${clave}`).toBeTruthy()
   }
+})
+
+test.each(CATALOGOS)('%s cuenta una secuencia con la pieza y el número dentro', (_idioma, textos) => {
+  // Las frases de `ordenar` son funciones, así que no basta con que existan:
+  // tienen que usar lo que se les pasa. Una que se dejara fuera el número
+  // llamaría igual a los tres eslabones de la secuencia.
+  for (const criterio of CRITERIOS) expect(textos.orden.instrucciones[criterio]).toBeTruthy()
+
+  expect(textos.orden.tamano('Cohete', 2, 3)).toContain('Cohete')
+  expect(textos.orden.tamano('Cohete', 2, 3)).toContain('2')
+  expect(textos.orden.tamano('Cohete', 2, 3)).not.toBe(textos.orden.tamano('Cohete', 3, 3))
+  expect(textos.orden.cantidad('Cohete', 2)).toContain('Cohete')
+  expect(textos.orden.cantidad('Cohete', 2)).not.toBe(textos.orden.cantidad('Cohete', 3))
+  expect(textos.orden.sitio(1, 3)).not.toBe(textos.orden.sitio(2, 3))
 })
 
 test.each(CATALOGOS)('%s nombra las cuarenta y dos piezas', (_idioma, textos) => {

@@ -32,6 +32,14 @@ export type Textos = {
    * ponerlo aquí sería contarle el juego a quien no mira la pantalla.
    */
   readonly cartaTapada: string
+  /**
+   * Cómo se cuenta una secuencia de `ordenar`. Es el único sitio del catálogo
+   * con funciones dentro, y el motivo es la gramática: «Cohete, tamaño 2 de 3»
+   * no se monta pegando trozos traducidos por separado, porque cada idioma
+   * coloca el número y la palabra donde quiere. Con una función, cada idioma
+   * escribe su frase entera.
+   */
+  readonly orden: Orden
 }
 
 /** Los anuncios del arrastre. Frases sueltas, sin nombre de pieza dentro: el
@@ -43,6 +51,22 @@ export type Arrastre = {
   readonly fueraDeHueco: string
   readonly encajada: string
   readonly devuelta: string
+}
+
+/**
+ * Los textos de `ordenar`. Van con nombre de pieza y números dentro porque
+ * describen algo que se ve —una pieza más grande, o tres piezas en vez de una— y
+ * sin decir cuánto no se distinguen unas de otras.
+ */
+export type Orden = {
+  /** Qué hay que hacer con la secuencia. Cambia con el criterio: es lo único que cambia. */
+  readonly instrucciones: Readonly<Record<'tamano' | 'cantidad', string>>
+  /** Un eslabón del criterio `tamano`: la pieza, su grado y cuántos hay. */
+  readonly tamano: (pieza: string, grado: number, total: number) => string
+  /** Un eslabón del criterio `cantidad`: la pieza y cuántas se ven. */
+  readonly cantidad: (pieza: string, cuantas: number) => string
+  /** Un sitio vacío de la secuencia. */
+  readonly sitio: (sitio: number, total: number) => string
 }
 
 /**

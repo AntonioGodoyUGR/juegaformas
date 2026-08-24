@@ -87,4 +87,20 @@ export const es: Textos = {
   },
 
   cartaTapada: 'Carta por descubrir',
+
+  orden: {
+    instrucciones: {
+      tamano:
+        'Coloca las piezas de la más pequeña a la más grande. Con teclado: espacio para cogerla, flechas para moverla y espacio otra vez para soltarla.',
+      cantidad:
+        'Coloca las piezas de la que tiene menos a la que tiene más. Con teclado: espacio para cogerla, flechas para moverla y espacio otra vez para soltarla.',
+    },
+    // Con número y no con «pequeña, mediana, grande»: los adjetivos solo llegan
+    // a tres, y una secuencia de cinco los deja sin palabras. Además hay que
+    // concordar con el género de la pieza, y aquí no se conoce: «Manzana,
+    // tamaño 2» vale para las cuarenta y dos, «Manzana pequeño» no.
+    tamano: (pieza, grado, total) => `${pieza}, tamaño ${grado} de ${total}`,
+    cantidad: (pieza, cuantas) => `${pieza}, cantidad ${cuantas}`,
+    sitio: (sitio, total) => `Sitio ${sitio} de ${total}`,
+  },
 }

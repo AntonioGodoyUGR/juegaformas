@@ -4,10 +4,12 @@ import { Volver } from '../componentes/Volver'
 import { useJuego, useTextos } from '../estado/juego'
 import { type Mecanica, type Tema, esMecanica, esTema } from '../lib/dominio'
 import { juegaBocaAbajo } from '../lib/emparejar'
+import { criterioDe } from '../lib/ordenar'
 import { type Partida as Tablero, generarPartida } from '../lib/partida'
 import { anotarPartida } from '../lib/progreso'
 import { Emparejar } from '../mecanicas/Emparejar'
 import { Encajar } from '../mecanicas/Encajar'
+import { Ordenar } from '../mecanicas/Ordenar'
 import { rutas } from '../rutas'
 
 /**
@@ -55,9 +57,10 @@ function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
 
   // Cuántas partidas lleva hechas de esta mecánica. Se lee del progreso al
   // entrar y a partir de ahí lo lleva la pantalla, porque es el número del que
-  // cuelga todo lo demás: el nivel, cuántas piezas trae el tablero y si
-  // `emparejar` reparte boca abajo. Con una sola cuenta no hay forma de que una
-  // de esas tres decisiones se quede una partida por detrás de las otras.
+  // cuelga todo lo demás: el nivel, cuántas piezas trae el tablero, si
+  // `emparejar` reparte boca abajo y con qué criterio ordena `ordenar`. Con una
+  // sola cuenta no hay forma de que una de esas decisiones se quede una partida
+  // por detrás de las otras.
   const [completadas, setCompletadas] = useState(guardado.completadas[mecanica])
   const [partida, setPartida] = useState<Tablero>(() => generarPartida(mecanica, tema, completadas))
   const espera = useRef<ReturnType<typeof setTimeout>>(undefined)
@@ -80,8 +83,6 @@ function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
   // no queda nada del tablero anterior.
   return (
     <div className="min-h-0 grow">
-      {/* Ordenar llega en el ticket 08. Hasta entonces sus temas se abren y se
-          ven, pero no reparten tablero. */}
       {mecanica === 'encajar' ? (
         <Encajar key={completadas} partida={partida} alTerminar={alTerminar} />
       ) : mecanica === 'emparejar' ? (
@@ -91,7 +92,14 @@ function Ronda({ mecanica, tema }: { mecanica: Mecanica; tema: Tema }) {
           bocaAbajo={juegaBocaAbajo(completadas)}
           alTerminar={alTerminar}
         />
-      ) : null}
+      ) : (
+        <Ordenar
+          key={completadas}
+          partida={partida}
+          criterio={criterioDe(completadas)}
+          alTerminar={alTerminar}
+        />
+      )}
     </div>
   )
 }
