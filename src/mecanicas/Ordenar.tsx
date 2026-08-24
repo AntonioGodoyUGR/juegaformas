@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
+import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
 import {
   type Criterio,
@@ -41,6 +42,7 @@ export function Ordenar({
   alTerminar: () => void
 }) {
   const textos = useTextos()
+  const sonar = useSonido()
   const [tablero, setTablero] = useState(() => crearTablero(partida, criterio))
   const [arrastrado, setArrastrado] = useState<number | null>(null)
   const [pista, setPista] = useState(SIN_PISTA)
@@ -81,6 +83,7 @@ export function Ordenar({
     }
 
     setPista(acertar)
+    sonar('acierto')
     setTablero(resultado.tablero)
     if (estaTerminado(resultado.tablero)) alTerminar()
   }

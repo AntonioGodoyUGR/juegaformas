@@ -1,3 +1,6 @@
+import { useEffect } from 'react'
+import type { Efecto } from '../audio/reproductor'
+import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
 import { PALETA, SOMBRA } from '../piezas/estilo'
 import { Lienzo } from '../piezas/lienzo'
@@ -16,6 +19,20 @@ import { Lienzo } from '../piezas/lienzo'
  * ni qué nivel es este—. Enseñar la cuenta convierte jugar en avanzar, y a los
  * cinco años eso solo sirve para compararse consigo mismo.
  */
+
+/**
+ * El sonido de la celebración va aquí y no en quien la monta, pegado a lo que se
+ * ve: así no hay forma de que salgan las estrellas sin que suene nada, ni de que
+ * suene la de nivel mientras se ve la de partida. Suena una vez por celebración
+ * porque las dos se montan de cero cada vez que hay algo que celebrar.
+ */
+function useSonarAlSalir(cual: Efecto) {
+  const sonar = useSonido()
+
+  useEffect(() => {
+    sonar(cual)
+  }, [sonar, cual])
+}
 
 /**
  * Una estrella de cinco puntas en el sistema de estilo de las piezas: relleno
@@ -50,6 +67,7 @@ function Estrella({ className }: { className?: string }) {
  */
 export function CelebracionBreve() {
   const textos = useTextos()
+  useSonarAlSalir('partida')
 
   return (
     <div
@@ -82,6 +100,7 @@ const ESTRELLAS = ['', '[animation-delay:150ms]', '[animation-delay:300ms]']
  */
 export function CelebracionDeNivel({ alSeguir }: { alSeguir: () => void }) {
   const textos = useTextos()
+  useSonarAlSalir('nivel')
 
   return (
     <div

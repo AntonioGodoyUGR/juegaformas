@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
+import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
 import { crearTablero, estaEncajada, estaTerminado, soltar } from '../lib/encajar'
 import type { Partida } from '../lib/partida'
@@ -19,6 +20,7 @@ import { SENAL } from './senal'
  */
 export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar: () => void }) {
   const textos = useTextos()
+  const sonar = useSonido()
   const [tablero, setTablero] = useState(() => crearTablero(partida))
   const [arrastrada, setArrastrada] = useState<string | null>(null)
   const [pista, setPista] = useState(SIN_PISTA)
@@ -39,6 +41,7 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
     }
 
     setPista(acertar)
+    sonar('acierto')
     setTablero(resultado.tablero)
     if (estaTerminado(resultado.tablero)) alTerminar()
   }

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
 import {
   type Carta as Naipe,
@@ -37,6 +38,7 @@ export function Emparejar({
   alTerminar: () => void
 }) {
   const textos = useTextos()
+  const sonar = useSonido()
   const [tablero, setTablero] = useState(() => crearTablero(partida, bocaAbajo))
   const [pista, setPista] = useState(SIN_PISTA)
 
@@ -57,7 +59,10 @@ export function Emparejar({
     // Se cuentan parejas falladas, no toques: levantar la primera carta no es
     // fallar nada todavía.
     if (resultado.toque === 'fallo') setPista((anterior) => fallar(anterior))
-    if (resultado.toque === 'acierto') setPista(acertar)
+    if (resultado.toque === 'acierto') {
+      setPista(acertar)
+      sonar('acierto')
+    }
 
     setTablero(resultado.tablero)
     if (estaTerminado(resultado.tablero)) alTerminar()

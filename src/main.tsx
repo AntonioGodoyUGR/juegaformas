@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter } from 'react-router-dom'
 import App from './App.tsx'
+import { ProveedorDeAudio } from './estado/audio.tsx'
 import { ProveedorDeJuego } from './estado/juego.tsx'
 import './index.css'
 
@@ -11,12 +12,18 @@ import './index.css'
 //
 // El proveedor va por fuera del router: el idioma y el progreso no dependen de
 // en qué pantalla esté el niño, y navegar no puede reiniciarlos.
+//
+// El de audio va dentro del de juego porque lee el volumen de ahí, y fuera del
+// router por lo mismo: la música es de la sesión, no de la pantalla, y cambiar
+// de tablero no puede cortarla.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ProveedorDeJuego>
-      <HashRouter>
-        <App />
-      </HashRouter>
+      <ProveedorDeAudio>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </ProveedorDeAudio>
     </ProveedorDeJuego>
   </StrictMode>,
 )
