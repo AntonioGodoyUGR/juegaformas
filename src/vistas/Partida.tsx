@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import { CelebracionBreve, CelebracionDeNivel } from '../componentes/Celebracion'
+import { Escenario } from '../componentes/Escenario'
 import { Volver } from '../componentes/Volver'
 import { useJuego, useTextos } from '../estado/juego'
 import { type Dificultad, type Mecanica, type Tema, esMecanica, esTema } from '../lib/dominio'
@@ -28,10 +29,15 @@ export default function Partida() {
   const dificultad = guardado.dificultad[mecanica]
 
   return (
-    <main className="flex h-full flex-col bg-purple-50">
-      <header className="flex shrink-0 items-center gap-4 p-4">
+    <main className="relative flex h-full flex-col bg-cielo">
+      <Escenario banda="alta" />
+
+      <header className="relative flex shrink-0 items-center gap-4 p-4">
         <Volver a={rutas.temas(mecanica)} />
-        <h1 className="text-2xl font-bold text-purple-700 sm:text-3xl">
+        {/* El separador va en el mismo texto y no en un span teñido: partir el
+            título en trozos parte también el nombre accesible, y el encabezado
+            dejaría de leerse «Encajar · Espacio» de corrido. */}
+        <h1 className="text-2xl font-bold text-white sm:text-3xl">
           {textos.mecanicas[mecanica]} · {textos.temas[tema]}
         </h1>
       </header>
@@ -132,7 +138,7 @@ function Ronda({
   // tablero debajo. La breve sí lo tiene, porque lo que celebra está ahí.
   if (celebrando === 'nivel') {
     return (
-      <div className="min-h-0 grow">
+      <div className="relative min-h-0 grow">
         <CelebracionDeNivel alSeguir={siguiente} />
       </div>
     )

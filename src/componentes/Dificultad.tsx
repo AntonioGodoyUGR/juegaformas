@@ -27,7 +27,7 @@ export function SelectorDeDificultad({ mecanica }: { mecanica: Mecanica }) {
     <div
       role="group"
       aria-label={textos.dificultad.titulo}
-      className="flex items-stretch gap-1 rounded-2xl bg-white p-1 shadow-md"
+      className="flex items-stretch gap-1 rounded-2xl bg-white p-1 shadow-[0_4px_0_var(--color-trazo)]"
     >
       {DIFICULTADES.map((dificultad, indice) => {
         const activa = dificultad === elegida
@@ -40,7 +40,7 @@ export function SelectorDeDificultad({ mecanica }: { mecanica: Mecanica }) {
             aria-pressed={activa}
             onClick={() => elegirDificultad(mecanica, dificultad)}
             className={`flex flex-col items-center gap-1 rounded-xl px-3 py-2 transition-colors ${
-              activa ? 'bg-purple-600 text-white' : 'text-purple-700'
+              activa ? 'bg-suelo text-white' : 'text-trazo'
             }`}
           >
             <Puntos cuantos={indice + 1} activa={activa} />
@@ -67,11 +67,11 @@ function Puntos({ cuantos, activa }: { cuantos: number; activa: boolean }) {
           className={`rounded-full ${
             punto > cuantos
               ? activa
-                ? 'bg-purple-400'
-                : 'bg-purple-200'
+                ? 'bg-white/40'
+                : 'bg-suelo/25'
               : activa
                 ? 'bg-white'
-                : 'bg-purple-600'
+                : 'bg-suelo'
           }`}
         />
       ))}

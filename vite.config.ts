@@ -37,8 +37,8 @@ export default defineConfig({
         short_name: 'JuegaFormas',
         description: 'Juego de puzzles para niños: encajar, emparejar y ordenar.',
         lang: 'es',
-        theme_color: '#7c3aed',
-        background_color: '#faf5ff',
+        theme_color: '#2b2450',
+        background_color: '#2b2450',
         display: 'standalone',
         orientation: 'landscape',
         // Relativos al propio manifest, por el mismo motivo que `base`.

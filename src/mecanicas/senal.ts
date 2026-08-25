@@ -1,5 +1,5 @@
 /**
- * Cómo se ve una pista: un halo que late alrededor del sitio correcto.
+ * Cómo se ve una pista: un halo blanco que late alrededor del sitio correcto.
  *
  * Es una sola constante y no una clase por mecánica porque la pista tiene que
  * verse igual en las tres. Un niño aprende una vez que «lo que late es donde
@@ -9,5 +9,12 @@
  * Late en vez de estar fijo porque el movimiento es lo que se ve sin mirar, y
  * el color solo no vale: media docena de niños de cada cien no distinguen dos
  * tonos que a los demás nos parecen distintísimos.
+ *
+ * Blanco y no un color de la paleta porque el blanco es el único que no es de
+ * nadie: el halo aparece sobre huecos morados, sobre cartas boca abajo y sobre
+ * sitios vacíos, y tiene que verse igual de fuerte en los tres. Es también el
+ * único borde blanco del tablero, así que no se confunde con nada.
+ *
+ * La mascota señala a la vez, desde la esquina: ver `src/componentes/Guia.tsx`.
  */
-export const SENAL = 'animate-pulse ring-4 ring-purple-500'
+export const SENAL = 'animate-pulse ring-4 ring-white'

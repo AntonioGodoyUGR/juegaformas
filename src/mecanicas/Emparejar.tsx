@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
+import { Guia } from '../componentes/Guia'
 import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
 import {
@@ -16,6 +17,7 @@ import {
 import type { Partida } from '../lib/partida'
 import { SIN_PISTA, acertar, fallar, hayPista } from '../lib/pista'
 import { Pieza } from '../piezas'
+import { Chispa } from '../piezas/chispa'
 import { SENAL } from './senal'
 
 /**
@@ -84,7 +86,7 @@ export function Emparejar({
   const parejas = partida.piezas.length
 
   return (
-    <div className="flex h-full items-center justify-center p-4">
+    <div className="relative flex h-full items-center justify-center p-4">
       <div
         className="grid grid-cols-[repeat(var(--columnas),var(--carta))] justify-center gap-4 sm:gap-6"
         style={escalaDeCarta(parejas)}
@@ -103,6 +105,8 @@ export function Emparejar({
           />
         ))}
       </div>
+
+      <Guia senalando={hayPista(pista)} />
     </div>
   )
 }
@@ -177,7 +181,7 @@ function Carta({
       aria-label={senalada ? pareja(etiqueta) : etiqueta}
       onClick={() => alTocar(carta.id)}
       className={`flex size-[var(--carta)] items-center justify-center rounded-3xl transition-colors ${
-        hecha ? 'bg-purple-100' : visible ? 'bg-white' : 'bg-purple-400'
+        hecha ? 'bg-hondo' : visible ? 'bg-white' : 'bg-suelo'
       } ${senalada ? SENAL : ''}`}
     >
       {visible ? <Pieza id={carta.pieza} className="size-full" decorativa /> : <Reverso />}
@@ -186,10 +190,15 @@ function Carta({
 }
 
 /**
- * El reverso: un color liso y nada más. Es lo contrario de una pieza a
- * propósito —sin dibujo, sin trazo, sin detalle—, para que desde el otro lado
- * de la mesa se vea de un vistazo cuánto queda por descubrir.
+ * El reverso: la misma chispa en todas las cartas. Es lo contrario de una
+ * pieza a propósito —un solo dibujo, repetido, igual en las diez—, para que
+ * desde el otro lado de la mesa se vea de un vistazo cuánto queda por
+ * descubrir.
+ *
+ * Antes era un rectángulo de color liso y nada más. La chispa dice lo mismo
+ * —«esto está tapado»— y además dice dónde estás: es la misma que hay en el
+ * cielo del fondo.
  */
 function Reverso() {
-  return <div className="size-full rounded-3xl bg-purple-400" aria-hidden="true" />
+  return <Chispa className="size-[62%]" />
 }

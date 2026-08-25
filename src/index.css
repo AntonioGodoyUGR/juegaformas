@@ -1,5 +1,55 @@
 @import 'tailwindcss';
 
+/*
+ * Fredoka, empaquetada. La fuente **no** puede venir de fonts.googleapis.com:
+ * el juego tiene que arrancar entero en modo avión y
+ * `herramientas/comprobar-offline.mjs` rechaza cualquier dominio que aparezca
+ * en la build. Este `woff2` es el subconjunto latino de la variable (400-700,
+ * 29 KB), que Vite emite a `assets/` y Workbox precachea con el patrón de
+ * `woff2` que ya está en `vite.config.ts`. La licencia va al lado, en
+ * `src/fuentes/OFL.txt`.
+ *
+ * `font-display: block` y no `swap`: el fichero está en el precache, así que la
+ * espera es de milisegundos, y un cambio de tipografía a media pantalla delante
+ * de un niño de cinco años se lee como que algo se ha roto.
+ */
+@font-face {
+  font-family: 'Fredoka';
+  src: url('./fuentes/fredoka-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: block;
+}
+
+/*
+ * La paleta de la interfaz. Son siete colores y ni uno más, y cada uno tiene un
+ * trabajo, no un nombre de escala: `cielo` es el fondo de todas las pantallas,
+ * `suelo` es el terreno del planeta y todo lo que se apoya en él, `hondo` es lo
+ * que está pero no llama —un hueco vacío, una pareja ya hecha—, `tenue` es el
+ * texto que acompaña, y `trazo` es el mismo contorno que llevan los dibujos.
+ *
+ * `trazo`, `amarillo` y `amarillo-hondo` están repetidos en
+ * `src/piezas/estilo.ts`, que es de donde salen: allí hacen falta como valores
+ * de JavaScript para los `fill` de los SVG, y aquí como variables de CSS para
+ * las clases de Tailwind. Si cambia uno tiene que cambiar el otro.
+ */
+@theme {
+  --color-cielo: #2b2450;
+  --color-hondo: #3d3468;
+  --color-suelo: #8340c4;
+  --color-tenue: #a99ed4;
+  --color-trazo: #2f2a3d;
+  --color-amarillo: #ffd93d;
+  --color-amarillo-hondo: #e8b41c;
+
+  /* El único rojo de la interfaz, y solo para borrar el progreso. Es la sombra
+     del rojo de la paleta, no el claro: sobre el claro, el texto blanco se
+     queda en 4.5:1 justo, y «justo» no es un sitio donde dejar un botón. */
+  --color-alerta: #c62c47;
+
+  --font-juego: 'Fredoka', 'Century Gothic', 'Trebuchet MS', system-ui, sans-serif;
+}
+
 /* Es un juego táctil para niños: el arrastre no debe hacer scroll ni seleccionar
    texto, y el doble toque no debe hacer zoom. */
 html,
@@ -11,6 +61,10 @@ body,
 
 body {
   margin: 0;
+  font-family: var(--font-juego);
+  /* El cielo también aquí: en pantallas con muesca, la franja que queda fuera
+     del `#root` la pinta el `body`, y un borde blanco delataría el marco. */
+  background: var(--color-cielo);
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;

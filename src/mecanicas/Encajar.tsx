@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
+import { Guia } from '../componentes/Guia'
 import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
 import { crearTablero, estaEncajada, estaTerminado, soltar } from '../lib/encajar'
 import type { Partida } from '../lib/partida'
-import { SIN_PISTA, acertar, estaSenalado, fallar } from '../lib/pista'
+import { SIN_PISTA, acertar, estaSenalado, fallar, hayPista } from '../lib/pista'
 import { Pieza } from '../piezas'
 import { detectarHueco, useAnunciosDeArrastre, useSensoresDeArrastre } from './arrastre'
 import { SENAL } from './senal'
@@ -66,7 +67,7 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
       onDragEnd={({ active, over }) => alSoltar(String(active.id), over ? String(over.id) : null)}
       onDragCancel={() => setArrastrada(null)}
     >
-      <div className="flex h-full flex-col justify-center gap-8 p-4" style={escala}>
+      <div className="relative flex h-full flex-col justify-center gap-8 p-4" style={escala}>
         <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
           {tablero.huecos.map((pieza) => (
             <Hueco
@@ -92,6 +93,8 @@ export function Encajar({ partida, alTerminar }: { partida: Partida; alTerminar:
             />
           ))}
         </div>
+
+        <Guia senalando={hayPista(pista)} />
       </div>
 
       {/* La pieza en vuelo va en el `DragOverlay` para que no la recorte la
@@ -159,7 +162,7 @@ function Hueco({ id, lleno, senal }: { id: string; lleno: boolean; senal?: strin
       role={senal ? 'note' : undefined}
       aria-label={senal}
       className={`flex size-[var(--ficha)] items-center justify-center rounded-3xl transition-colors ${
-        lleno ? 'bg-transparent' : isOver ? 'bg-purple-200' : 'bg-purple-100'
+        lleno ? 'bg-transparent' : isOver ? 'bg-suelo' : 'bg-hondo'
       } ${senal ? SENAL : ''}`}
     >
       {/* Mientras el hueco está vacío, la pieza que va en él también está en la
@@ -172,16 +175,19 @@ function Hueco({ id, lleno, senal }: { id: string; lleno: boolean; senal?: strin
 }
 
 /**
- * La pieza en color de sombra: lo que le dice al niño cuál va en este hueco. Un
- * agujero es color de sombra, no un contorno vacío, igual que en el icono de la
- * mecánica.
+ * La pieza en blanco translúcido sobre el hueco oscuro: lo que le dice al niño
+ * cuál va aquí. Es una forma rellena y no un contorno vacío, igual que en el
+ * icono de la mecánica, porque una silueta se reconoce por la mancha antes que
+ * por la línea.
  *
  * Se saca con un filtro sobre el mismo dibujo en vez de con una segunda versión
  * de cada pieza: cuarenta y dos dibujos duplicados se desincronizan el día que
  * alguien retoca uno, y un filtro no puede.
  */
 function Silueta({ id }: { id: string }) {
-  return <Pieza id={id} className="size-full opacity-20 [filter:brightness(0)]" decorativa />
+  return (
+    <Pieza id={id} className="size-full opacity-40 [filter:brightness(0)_invert(1)]" decorativa />
+  )
 }
 
 /**

@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import type { Efecto } from '../audio/reproductor'
 import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
+import { Mascota } from '../piezas/mascota'
 import { PALETA, SOMBRA } from '../piezas/estilo'
 import { Lienzo } from '../piezas/lienzo'
 
@@ -40,7 +41,8 @@ function useSonarAlSalir(cual: Efecto) {
  * dibuja aquí en vez de reutilizar una pieza porque una pieza pertenece a un
  * tema, y la celebración es la misma se esté jugando con cohetes o con peces.
  */
-const ESTRELLA = 'M128 28 L155 92 L223 97 L171 142 L187 209 L128 173 L69 209 L85 142 L33 97 L102 92 Z'
+const ESTRELLA =
+  'M128 28 L155 92 L223 97 L171 142 L187 209 L128 173 L69 209 L85 142 L33 97 L102 92 Z'
 
 function Estrella({ className }: { className?: string }) {
   // Sin nombre: es decorativa. Lo que hay que oír es la frase que va al lado, y
@@ -75,10 +77,10 @@ export function CelebracionBreve() {
       // Un destello no se oye, igual que en la pista: quien juega con lector de
       // pantalla se entera de que ha terminado el tablero por esta frase.
       role="status"
-      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-purple-50/85"
+      className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-4 bg-cielo/85"
     >
       <Estrella className="w-28 animate-bounce sm:w-36" />
-      <p className="text-3xl font-bold text-purple-700 sm:text-4xl">{textos.celebracion.partida}</p>
+      <p className="text-3xl font-bold text-white sm:text-4xl">{textos.celebracion.partida}</p>
     </div>
   )
 }
@@ -105,7 +107,7 @@ export function CelebracionDeNivel({ alSeguir }: { alSeguir: () => void }) {
   return (
     <div
       data-celebracion="nivel"
-      className="flex h-full flex-col items-center justify-center gap-8 p-6"
+      className="relative flex h-full flex-col items-center justify-center gap-8 p-6"
     >
       <div className="flex items-center gap-2 sm:gap-6">
         {ESTRELLAS.map((retraso, i) => (
@@ -118,7 +120,7 @@ export function CelebracionDeNivel({ alSeguir }: { alSeguir: () => void }) {
         ))}
       </div>
 
-      <h2 className="text-center text-4xl font-bold text-purple-700 sm:text-5xl">
+      <h2 className="text-center text-4xl font-bold text-white sm:text-5xl">
         {textos.celebracion.nivel}
       </h2>
 
@@ -130,10 +132,20 @@ export function CelebracionDeNivel({ alSeguir }: { alSeguir: () => void }) {
         type="button"
         autoFocus
         onClick={alSeguir}
-        className="rounded-full bg-purple-500 px-12 py-6 text-2xl font-bold text-white shadow-lg transition-transform active:scale-95 sm:text-3xl"
+        // El amarillo es el color de la estrella, y este botón es lo que viene
+        // después de las estrellas. El canto sólido de debajo es el mismo
+        // recurso que en `Volver`: se hunde al pulsarlo en vez de encogerse.
+        className="rounded-full bg-amarillo px-12 py-6 text-2xl font-bold text-trazo shadow-[0_8px_0_var(--color-amarillo-hondo)] transition-transform active:translate-y-2 active:shadow-none sm:text-3xl"
       >
         {textos.celebracion.seguir}
       </button>
+
+      {/* La mascota celebra desde la esquina, no desde el centro: lo que ha
+          hecho el niño son las estrellas, y la criatura las mira de lado. */}
+      <Mascota
+        pose="celebra"
+        className="pointer-events-none absolute right-3 bottom-2 w-28 sm:right-6 sm:w-40"
+      />
     </div>
   )
 }

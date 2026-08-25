@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { DndContext, DragOverlay, useDraggable, useDroppable } from '@dnd-kit/core'
+import { Guia } from '../componentes/Guia'
 import { useSonido } from '../estado/audio'
 import { useTextos } from '../estado/juego'
 import {
@@ -12,7 +13,7 @@ import {
   soltar,
 } from '../lib/ordenar'
 import type { Partida } from '../lib/partida'
-import { SIN_PISTA, acertar, estaSenalado, fallar } from '../lib/pista'
+import { SIN_PISTA, acertar, estaSenalado, fallar, hayPista } from '../lib/pista'
 import { Pieza } from '../piezas'
 import { detectarHueco, useAnunciosDeArrastre, useSensoresDeArrastre } from './arrastre'
 import { SENAL } from './senal'
@@ -105,7 +106,7 @@ export function Ordenar({
       {/* Los tamaños de esta mecánica van en `em` y no en clases fijas porque
           son una escala, no tres medidas sueltas: con el `em` atado aquí, toda
           la escalera crece o se encoge de golpe y sigue proporcionada. */}
-      <div className="flex h-full flex-col justify-center gap-8 p-4" style={escala}>
+      <div className="relative flex h-full flex-col justify-center gap-8 p-4" style={escala}>
         {/* Una secuencia es una lista ordenada, y decirlo con `ol` es lo que
             hace que un lector de pantalla la recorra como lo que es. */}
         <ol className="flex list-none flex-wrap items-end justify-center gap-3 sm:gap-5">
@@ -135,6 +136,8 @@ export function Ordenar({
             </Ficha>
           ))}
         </div>
+
+        <Guia senalando={hayPista(pista)} />
       </div>
 
       {/* El eslabón en vuelo va en el `DragOverlay` para que no lo recorte la
@@ -241,7 +244,7 @@ function Sitio({
       aria-label={nombre}
       style={cuadrado(ladoDe(sitio))}
       className={`flex items-center justify-center rounded-3xl transition-colors ${
-        lleno ? 'bg-transparent' : isOver ? 'bg-purple-200' : 'bg-purple-100'
+        lleno ? 'bg-transparent' : isOver ? 'bg-suelo' : 'bg-hondo'
       } ${senalado ? SENAL : ''}`}
     >
       {lleno ? children : null}

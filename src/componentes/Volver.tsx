@@ -18,7 +18,7 @@ export function Volver({ a }: { a: string }) {
     <Link
       to={a}
       aria-label={textos.volver}
-      className="flex size-16 shrink-0 items-center justify-center rounded-full bg-white shadow-md transition-transform active:scale-90"
+      className="flex size-16 shrink-0 items-center justify-center rounded-full bg-white shadow-[0_4px_0_var(--color-trazo)] transition-transform active:translate-y-1 active:shadow-none"
     >
       <svg
         viewBox="0 0 24 24"

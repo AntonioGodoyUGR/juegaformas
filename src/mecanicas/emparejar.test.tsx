@@ -73,8 +73,10 @@ describe('el tablero', () => {
     montar(true)
 
     for (const carta of todasLasCartas()) expect(nombreDe(carta)).toBe(textos.cartaTapada)
-    // Y tampoco lo cuenta el dibujo: no hay ni una pieza pintada en pantalla.
-    expect(document.querySelectorAll('svg')).toHaveLength(0)
+    // Y tampoco lo cuenta el dibujo. El dorso lleva una chispa, así que sí
+    // hay SVG en pantalla; lo que no puede haber es ninguno con nombre, que
+    // es lo que distingue a una pieza de un adorno.
+    expect(document.querySelectorAll('svg[aria-label]')).toHaveLength(0)
   })
 })
 
